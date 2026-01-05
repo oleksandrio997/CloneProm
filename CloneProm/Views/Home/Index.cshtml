@@ -1,8 +1,45 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model CloneProm.Models.ViewModels.HomeViewModel
+
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row mb-4">
+    <div class="col-12 text-center bg-primary text-white p-5 rounded">
+        <h1>Welcome to Kram Marketplace</h1>
+        <p>Discover products from trusted sellers</p>
+        <a class="btn btn-light btn-lg mt-3" asp-controller="Home" asp-action="Index">Shop Now</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <h5>Categories</h5>
+        <div class="list-group mb-4">
+            @foreach (var category in Model.Categories)
+            {
+                <a class="list-group-item list-group-item-action" href="@Url.Action("Category", "Product", new { id = category.Id })">
+                    @category.Name
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="row">
+            @foreach (var product in Model.Products)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@product.ImagePath ?? " https: //via.placeholder.com/300x200"" class="card-img-top" alt="@product.Name" />
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text text-danger fw-bold">@product.Price.ToString("C")</p>
+                            <a class="btn btn-primary" asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">View</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
