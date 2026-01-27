@@ -1,0 +1,17 @@
+﻿@model CloneProm.Models.ViewModels.LoginViewModel
+
+<h2>Login</h2>
+
+<form asp-action="Login" method="post">
+    <input asp-for="Email" placeholder="Email" />
+    <span asp-validation-for="Email"></span>
+
+    <input asp-for="Password" placeholder="Password" />
+    <span asp-validation-for="Password"></span>
+
+    <label>
+        <input asp-for="RememberMe" /> Remember me
+    </label>
+
+    <button type="submit">Login</button>
+</form>

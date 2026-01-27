@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CloneProm.Data
 {
-    public class ClonePromDbContext : IdentityDbContext<Microsoft.AspNetCore.Identity.IdentityUser>
+    public class ClonePromDbContext : IdentityDbContext<ApplicationUser>
     {
         public ClonePromDbContext(DbContextOptions<ClonePromDbContext> options)
             : base(options) 
