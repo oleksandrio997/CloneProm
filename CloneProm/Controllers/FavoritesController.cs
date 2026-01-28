@@ -24,6 +24,7 @@ namespace CloneProm.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public IActionResult ToggleFavorite(int productId)
         {
             var favIds = HttpContext.Session.GetObject<List<int>>(SessionFavKey) ?? new List<int>();
