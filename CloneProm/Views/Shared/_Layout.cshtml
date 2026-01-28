@@ -28,6 +28,12 @@
                         </li>
                     </ul>
 
+                    <!-- Visible buttons for Cart and Favorites (user requested) -->
+                    <div class="d-flex align-items-center me-3">
+                        <a class="btn btn-outline-danger me-2" asp-controller="Cart" asp-action="Index">Корзина</a>
+                        <a class="btn btn-outline-danger" asp-controller="Favorites" asp-action="Index">Избранное</a>
+                    </div>
+
                     <form class="d-flex me-3">
                         <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
                         <button class="btn btn-outline-primary" type="submit">Search</button>

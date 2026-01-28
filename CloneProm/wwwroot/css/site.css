@@ -20,3 +20,16 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.fav-link {
+  background: none;
+  border: none;
+  color: #d63339;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fav-link:hover {
+  opacity: .85;
+}
