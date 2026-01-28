@@ -84,26 +84,29 @@
             // trigger on page load
             updateBadges();
 
-            // delegate add to cart / fav from product lists
-            $(document).on('click', '.btn-add-cart', function(){
-                var id = $(this).data('id');
-                $.post('/Cart/AddToCart', { productId: id, quantity: 1 }, function(res){
-                    if(res.success){
+            // When forms are submitted (progressive enhancement), intercept to update badges via AJAX
+            $(document).on('submit', 'form[asp-controller="Cart"], form[action="/Cart/AddToCart"]', function(e){
+                e.preventDefault();
+                var $form = $(this);
+                var data = $form.serialize();
+                $.post($form.attr('action') || '/Cart/AddToCart', data, function(res){
+                    if(res && res.success){
                         $('#cartBadge').text(res.count).show();
                     }
                 });
+                return false;
             });
 
-            $(document).on('click', '.btn-toggle-fav', function(){
-                var id = $(this).data('id');
-                var btn = $(this);
-                $.post('/Favorites/ToggleFavorite', { productId: id }, function(res){
-                    if(res.success){
+            $(document).on('submit', 'form[asp-controller="Favorites"], form[action="/Favorites/ToggleFavorite"]', function(e){
+                e.preventDefault();
+                var $form = $(this);
+                var data = $form.serialize();
+                $.post($form.attr('action') || '/Favorites/ToggleFavorite', data, function(res){
+                    if(res && res.success){
                         $('#favBadge').text(res.count).toggle(res.count>0);
-                        if(res.added) btn.addClass('btn-danger').removeClass('btn-outline-danger');
-                        else btn.addClass('btn-outline-danger').removeClass('btn-danger');
                     }
                 });
+                return false;
             });
         });
     </script>

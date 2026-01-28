@@ -37,8 +37,14 @@
                             <p class="card-text text-danger fw-bold">@product.Price.ToString("C")</p>
                             <div class="d-flex gap-2">
                                 <a class="btn btn-primary" asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">View</a>
-                                <button class="btn btn-success btn-add-cart" data-id="@product.Id">Buy</button>
-                                <button class="btn btn-outline-danger btn-toggle-fav" data-id="@product.Id">❤</button>
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline-block">
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <button type="submit" class="btn btn-success btn-add-cart" data-id="@product.Id">Buy</button>
+                                </form>
+                                <form asp-controller="Favorites" asp-action="ToggleFavorite" method="post" class="d-inline-block">
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <button type="submit" class="btn btn-outline-danger btn-toggle-fav" data-id="@product.Id">❤</button>
+                                </form>
                             </div>
                         </div>
                     </div>
