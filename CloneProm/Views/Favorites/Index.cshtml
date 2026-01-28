@@ -1,0 +1,30 @@
+@model List<CloneProm.Models.Product>
+
+@{
+    ViewData["Title"] = "Favorites";
+}
+
+<h2>Your Favorites</h2>
+
+@if (!Model.Any())
+{
+    <p>No favorites yet.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var p in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <img src="@p.ImagePath" class="card-img-top" />
+                    <div class="card-body">
+                        <h5>@p.Name</h5>
+                        <p class="text-danger fw-bold">@p.Price.ToString("C")</p>
+                        <a class="btn btn-primary" asp-controller="Product" asp-action="Details" asp-route-id="@p.Id">View</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
