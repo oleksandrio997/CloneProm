@@ -1,6 +1,8 @@
 using CloneProm.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
