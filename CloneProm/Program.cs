@@ -39,12 +39,13 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseSession();
-
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Session must be enabled after routing and before endpoints so it's available in controllers
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
