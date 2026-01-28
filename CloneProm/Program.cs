@@ -4,11 +4,17 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddDbContext<ClonePromDbContext>(options =>
-    //options.UseInMemoryDatabase("TestClonePromDB"));
-
-builder.Services.AddDbContext<ClonePromDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Use in-memory database in Development to avoid local SQL setup issues
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDbContext<ClonePromDbContext>(options =>
+        options.UseInMemoryDatabase("TestClonePromDB"));
+}
+else
+{
+    builder.Services.AddDbContext<ClonePromDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
