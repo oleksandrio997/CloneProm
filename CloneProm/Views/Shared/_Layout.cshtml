@@ -28,12 +28,6 @@
                         </li>
                     </ul>
 
-                    <!-- Visible buttons for Cart and Favorites (user requested) -->
-                    <div class="d-flex align-items-center me-3">
-                        <a class="btn btn-outline-danger me-2" asp-controller="Cart" asp-action="Index">Корзина</a>
-                        <a class="btn btn-outline-danger" asp-controller="Favorites" asp-action="Index">Избранное</a>
-                    </div>
-
                     <form class="d-flex me-3">
                         <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
                         <button class="btn btn-outline-primary" type="submit">Search</button>
@@ -43,17 +37,11 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index">
-                                <span class="bi bi-cart-fill"></span> Cart
-                                <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none">0</span>
-                            </a>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index">Cart</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link position-relative" asp-controller="Favorites" asp-action="Index">
-                                <span class="bi bi-heart-fill text-danger"></span> Favorites
-                                <span id="favBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none">0</span>
-                            </a>
+                            <a class="nav-link position-relative" asp-controller="Favorites" asp-action="Index">Favorites</a>
                         </li>
                     </ul>
                 </div>
@@ -75,46 +63,28 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        $(function(){
-            function updateBadges(){
-                $.getJSON('/api/session/status', function(data){
-                    if(data.cartCount>0){
-                        $('#cartBadge').text(data.cartCount).show();
-                    } else { $('#cartBadge').hide(); }
-                    if(data.favCount>0){
-                        $('#favBadge').text(data.favCount).show();
-                    } else { $('#favBadge').hide(); }
+            $(function(){
+                // When forms are submitted (progressive enhancement), intercept to update badges via AJAX
+                $(document).on('submit', 'form[asp-controller="Cart"], form[action="/Cart/AddToCart"]', function(e){
+                    e.preventDefault();
+                    var $form = $(this);
+                    var data = $form.serialize();
+                    $.post($form.attr('action') || '/Cart/AddToCart', data, function(res){
+                        // no visual badge update necessary on header for now
+                    });
+                    return false;
                 });
-            }
 
-            // trigger on page load
-            updateBadges();
-
-            // When forms are submitted (progressive enhancement), intercept to update badges via AJAX
-            $(document).on('submit', 'form[asp-controller="Cart"], form[action="/Cart/AddToCart"]', function(e){
-                e.preventDefault();
-                var $form = $(this);
-                var data = $form.serialize();
-                $.post($form.attr('action') || '/Cart/AddToCart', data, function(res){
-                    if(res && res.success){
-                        $('#cartBadge').text(res.count).show();
-                    }
+                $(document).on('submit', 'form[asp-controller="Favorites"], form[action="/Favorites/ToggleFavorite"]', function(e){
+                    e.preventDefault();
+                    var $form = $(this);
+                    var data = $form.serialize();
+                    $.post($form.attr('action') || '/Favorites/ToggleFavorite', data, function(res){
+                        // no visual badge update necessary on header for now
+                    });
+                    return false;
                 });
-                return false;
             });
-
-            $(document).on('submit', 'form[asp-controller="Favorites"], form[action="/Favorites/ToggleFavorite"]', function(e){
-                e.preventDefault();
-                var $form = $(this);
-                var data = $form.serialize();
-                $.post($form.attr('action') || '/Favorites/ToggleFavorite', data, function(res){
-                    if(res && res.success){
-                        $('#favBadge').text(res.count).toggle(res.count>0);
-                    }
-                });
-                return false;
-            });
-        });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
