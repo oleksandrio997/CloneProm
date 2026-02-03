@@ -1,0 +1,16 @@
+﻿@model CloneProm.Models.ViewModels.RegisterViewModel
+
+<h2>Register</h2>
+
+<form asp-action="Register" method="post">
+    <input asp-for="Email" placeholder="Email" />
+    <span asp-validation-for="Email"></span>
+
+    <input asp-for="Password" placeholder="Password" />
+    <span asp-validation-for="Password"></span>
+
+    <input asp-for="ConfirmPassword" placeholder="Confirm Password" />
+    <span asp-validation-for="ConfirmPassword"></span>
+
+    <button type="submit">Register</button>
+</form>

@@ -7,7 +7,7 @@ namespace CloneProm.Models
         public int Id { get; set; }
 
         public string UserId { get; set; }
-        public IdentityUser User { get; set; }
+        public ApplicationUser User { get; set; }
 
         public string ShopName { get; set; }
         public string Description { get; set; }
