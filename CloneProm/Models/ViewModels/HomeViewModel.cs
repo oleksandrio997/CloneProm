@@ -7,5 +7,7 @@ namespace CloneProm.Models.ViewModels
     {
         public IEnumerable<Category> Categories { get; set; } = new List<Category>();
         public IEnumerable<Product> Products { get; set; } = new List<Product>();
+        public int? SelectedCategoryId { get; set; }
+        public string? SearchQuery { get; set; }
     }
 }

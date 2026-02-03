@@ -16,9 +16,11 @@
     <div class="col-md-3">
         <h5>Categories</h5>
         <div class="list-group mb-4">
+            <a class="list-group-item list-group-item-action @(Model.SelectedCategoryId == null ? "active" : "")" href="@Url.Action("Index", "Home")">All</a>
             @foreach (var category in Model.Categories)
             {
-                <a class="list-group-item list-group-item-action" href="@Url.Action("Category", "Product", new { id = category.Id })">
+                var isActive = Model.SelectedCategoryId.HasValue && Model.SelectedCategoryId.Value == category.Id ? "active" : "";
+                <a class="list-group-item list-group-item-action @isActive" href="@Url.Action("Index", "Home", new { category = category.Id, q = Model.SearchQuery })">
                     @category.Name
                 </a>
             }
