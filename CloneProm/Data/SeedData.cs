@@ -1,3 +1,5 @@
+using CloneProm.Models;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,22 +50,44 @@ namespace CloneProm.Data
                     // Books
                     new Models.Product { Name = "C# in Depth", Description = "Практическое руководство по C#.", Price = 39.99m, Quantity = 100, ImagePath = "https://via.placeholder.com/300x200?text=Book", Category = books, Seller = seller3 },
                     new Models.Product { Name = "Cooking Basics", Description = "Книга рецептов для начинающих.", Price = 19.50m, Quantity = 60, ImagePath = "https://via.placeholder.com/300x200?text=Cookbook", Category = books, Seller = seller3 },
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-                    // Clothing
-                    new Models.Product { Name = "Classic T-Shirt", Description = "Удобная хлопковая футболка.", Price = 14.99m, Quantity = 200, ImagePath = "https://via.placeholder.com/300x200?text=T-Shirt", Category = clothing, Seller = seller1 },
+                // Clothing
+                new Models.Product { Name = "Classic T-Shirt", Description = "Удобная хлопковая футболка.", Price = 14.99m, Quantity = 200, ImagePath = "https://via.placeholder.com/300x200?text=T-Shirt", Category = clothing, Seller = seller1 },
                     new Models.Product { Name = "Denim Jeans", Description = "Классические джинсы строгого кроя.", Price = 49.99m, Quantity = 80, ImagePath = "https://via.placeholder.com/300x200?text=Jeans", Category = clothing, Seller = seller1 },
+            string[] roles = { "Admin", "Seller", "User" };
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                }
 
-                    // Toys
-                    new Models.Product { Name = "Building Blocks Set", Description = "Набор конструктора для детей.", Price = 29.99m, Quantity = 150, ImagePath = "https://via.placeholder.com/300x200?text=Blocks", Category = toys, Seller = seller2 },
+                // Toys
+                new Models.Product { Name = "Building Blocks Set", Description = "Набор конструктора для детей.", Price = 29.99m, Quantity = 150, ImagePath = "https://via.placeholder.com/300x200?text=Blocks", Category = toys, Seller = seller2 },
                     new Models.Product { Name = "Remote Car Racer", Description = "Машинка на радиоуправлении для детей.", Price = 49.99m, Quantity = 70, ImagePath = "https://via.placeholder.com/300x200?text=Car", Category = toys, Seller = seller2 }
                 );
-
-                ctx.SaveChanges();
             }
+        public static async Task InitializeAdminAsync(this IServiceProvider services) {
+            string adminEmail = "admin@cloneprom.com";
+            string adminPassword = "Admin123!";
+
+            ctx.SaveChanges();
+        }
             catch (Exception ex)
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
+                var admin = new ApplicationUser
+                {
                 var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger("SeedData");
                 logger.LogError(ex, "Error seeding the database.");
+                    UserName = adminEmail,
+                    Email = adminEmail
+                };
+        var result = await userManager.CreateAsync(admin, adminPassword);
+                if (result.Succeeded)
+                    await userManager.AddToRoleAsync(admin, "Admin");
+            }
             }
         }
     }
