@@ -81,17 +81,22 @@
                     e.preventDefault();
                     var $form = $(this);
                     var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    console.log('POST', $form.attr('action'), $form.serialize());
                     $.ajax({
                         url: $form.attr('action'),
                         method: 'POST',
                         data: $form.serialize(),
-                        headers: { 'RequestVerificationToken': token }
+                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
                     })
-                        .done(function(){
-                            // simple feedback
-                            $form.find('button').text('Добавлено').prop('disabled', true);
-                            setTimeout(function(){ $form.find('button').text('Купить').prop('disabled', false); }, 1500);
-                        });
+                    .done(function(){
+                        // simple feedback
+                        $form.find('button').text('Добавлено').prop('disabled', true);
+                        setTimeout(function(){ $form.find('button').text('Купить').prop('disabled', false); }, 1500);
+                    })
+                    .fail(function(xhr, status, err){
+                        console.error('Cart AJAX error', status, err, xhr.responseText);
+                        alert('Ошибка при добавлении в корзину: ' + (xhr.responseText || status));
+                    });
                     return false;
                 });
 
@@ -99,17 +104,21 @@
                     e.preventDefault();
                     var $form = $(this);
                     var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    console.log('POST', $form.attr('action'), $form.serialize());
                     $.ajax({
                         url: $form.attr('action'),
                         method: 'POST',
                         data: $form.serialize(),
-                        headers: { 'RequestVerificationToken': token }
+                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
                     }).done(function(res){
                         if(res && res.added){
                             $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
                         } else {
                             $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
                         }
+                    }).fail(function(xhr, status, err){
+                        console.error('Fav AJAX error', status, err, xhr.responseText);
+                        alert('Ошибка при добавлении в избранное: ' + (xhr.responseText || status));
                     });
                     return false;
                 });
