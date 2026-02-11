@@ -80,7 +80,13 @@
                 $(document).on('submit', '.ajax-cart-form', function(e){
                     e.preventDefault();
                     var $form = $(this);
-                    $.post($form.attr('action'), $form.serialize())
+                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    $.ajax({
+                        url: $form.attr('action'),
+                        method: 'POST',
+                        data: $form.serialize(),
+                        headers: { 'RequestVerificationToken': token }
+                    })
                         .done(function(){
                             // simple feedback
                             $form.find('button').text('Добавлено').prop('disabled', true);
@@ -92,14 +98,19 @@
                 $(document).on('submit', '.ajax-fav-form', function(e){
                     e.preventDefault();
                     var $form = $(this);
-                    $.post($form.attr('action'), $form.serialize())
-                        .done(function(res){
-                            if(res && res.added){
-                                $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
-                            } else {
-                                $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
-                            }
-                        });
+                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    $.ajax({
+                        url: $form.attr('action'),
+                        method: 'POST',
+                        data: $form.serialize(),
+                        headers: { 'RequestVerificationToken': token }
+                    }).done(function(res){
+                        if(res && res.added){
+                            $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
+                        } else {
+                            $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
+                        }
+                    });
                     return false;
                 });
             });
