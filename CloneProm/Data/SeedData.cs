@@ -16,7 +16,8 @@ namespace CloneProm.Data
             try
             {
                 var ctx = provider.GetRequiredService<ClonePromDbContext>();
-                ctx.Database.EnsureCreated();
+                // Prefer migrations in production-like DBs. Apply pending migrations before seeding.
+                ctx.Database.Migrate();
 
                 // if any products exist, assume DB already seeded
                 if (ctx.Products.Any()) return;
@@ -29,6 +30,8 @@ namespace CloneProm.Data
                         ctx.Categories.Add(new Models.Category { Name = name });
                 }
                 ctx.SaveChanges();
+                var loggerInfo = provider.GetRequiredService<ILoggerFactory>().CreateLogger("SeedData");
+                loggerInfo.LogInformation("SeedData: categories={CountCats}, sellers={CountSellers}, products={CountProds}", ctx.Categories.Count(), ctx.Sellers.Count(), ctx.Products.Count());
 
                 // ensure sellers
                 (string id, string shop, string desc)[] sellers = {
