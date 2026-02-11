@@ -76,24 +76,30 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
             $(function(){
-                // When forms are submitted (progressive enhancement), intercept to update badges via AJAX
-                $(document).on('submit', 'form[asp-controller="Cart"], form[action="/Cart/AddToCart"]', function(e){
+                // Ajax submit for cart / favorites forms
+                $(document).on('submit', '.ajax-cart-form', function(e){
                     e.preventDefault();
                     var $form = $(this);
-                    var data = $form.serialize();
-                    $.post($form.attr('action') || '/Cart/AddToCart', data, function(res){
-                        // no visual badge update necessary on header for now
-                    });
+                    $.post($form.attr('action'), $form.serialize())
+                        .done(function(){
+                            // simple feedback
+                            $form.find('button').text('Добавлено').prop('disabled', true);
+                            setTimeout(function(){ $form.find('button').text('Купить').prop('disabled', false); }, 1500);
+                        });
                     return false;
                 });
 
-                $(document).on('submit', 'form[asp-controller="Favorites"], form[action="/Favorites/ToggleFavorite"]', function(e){
+                $(document).on('submit', '.ajax-fav-form', function(e){
                     e.preventDefault();
                     var $form = $(this);
-                    var data = $form.serialize();
-                    $.post($form.attr('action') || '/Favorites/ToggleFavorite', data, function(res){
-                        // no visual badge update necessary on header for now
-                    });
+                    $.post($form.attr('action'), $form.serialize())
+                        .done(function(res){
+                            if(res && res.added){
+                                $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
+                            } else {
+                                $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
+                            }
+                        });
                     return false;
                 });
             });

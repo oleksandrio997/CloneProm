@@ -45,7 +45,8 @@ if (!app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.InitializeAsync().Wait();
+    scope.ServiceProvider.Initialize().Wait();
+    scope.ServiceProvider.InitializeAdminAsync().Wait();
 }
 
 app.UseHttpsRedirection();
@@ -62,13 +63,6 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-//app.MapControllers();
 app.MapRazorPages();
-
-// Seed sample data when using InMemory DB (development)
-if (builder.Environment.IsDevelopment())
-{
-    SeedData.Initialize(app.Services);
-}
 
 app.Run();

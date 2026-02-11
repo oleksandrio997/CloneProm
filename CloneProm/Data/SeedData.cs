@@ -1,4 +1,4 @@
-using CloneProm.Models;
+п»їusing CloneProm.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
@@ -16,78 +16,99 @@ namespace CloneProm.Data
             try
             {
                 var ctx = provider.GetRequiredService<ClonePromDbContext>();
-                // Ensure database created
                 ctx.Database.EnsureCreated();
 
-                if (ctx.Categories.Any()) return;
+                // if any products exist, assume DB already seeded
+                if (ctx.Products.Any()) return;
 
-                // create categories
-                var electronics = new Models.Category { Name = "Electronics" };
-                var appliances = new Models.Category { Name = "Home Appliances" };
-                var books = new Models.Category { Name = "Books" };
-                var clothing = new Models.Category { Name = "Clothing" };
-                var toys = new Models.Category { Name = "Toys" };
-
-                ctx.Categories.AddRange(electronics, appliances, books, clothing, toys);
-
-                // sellers
-                var seller1 = new Models.Seller { UserId = "system", ShopName = "Default Shop", Description = "Seeded seller" };
-                var seller2 = new Models.Seller { UserId = "shop2", ShopName = "HomeGoods", Description = "Household items" };
-                var seller3 = new Models.Seller { UserId = "bookseller", ShopName = "Books & Co.", Description = "Bookseller" };
-                ctx.Sellers.AddRange(seller1, seller2, seller3);
-
-                // products across categories
-                ctx.Products.AddRange(
-                    // Electronics
-                    new Models.Product { Name = "Notebook Alpha", Description = "Лёгкий ноутбук для повседневных задач.", Price = 149.99m, Quantity = 10, ImagePath = "https://via.placeholder.com/300x200?text=Notebook", Category = electronics, Seller = seller1 },
-                    new Models.Product { Name = "Wireless Mouse Mini", Description = "Компактная эргономичная беспроводная мышь.", Price = 24.50m, Quantity = 50, ImagePath = "https://via.placeholder.com/300x200?text=Mouse", Category = electronics, Seller = seller1 },
-                    new Models.Product { Name = "Mechanical Keyboard X", Description = "Механическая клавиатура с тактильными переключателями.", Price = 89.90m, Quantity = 20, ImagePath = "https://via.placeholder.com/300x200?text=Keyboard", Category = electronics, Seller = seller1 },
-
-                    // Home Appliances
-                    new Models.Product { Name = "Air Purifier Pro", Description = "Компактный очиститель воздуха для дома.", Price = 129.00m, Quantity = 25, ImagePath = "https://via.placeholder.com/300x200?text=Air+Purifier", Category = appliances, Seller = seller2 },
-                    new Models.Product { Name = "Blender 500W", Description = "Мощный блендер для смузи и супов.", Price = 59.99m, Quantity = 40, ImagePath = "https://via.placeholder.com/300x200?text=Blender", Category = appliances, Seller = seller2 },
-
-                    // Books
-                    new Models.Product { Name = "C# in Depth", Description = "Практическое руководство по C#.", Price = 39.99m, Quantity = 100, ImagePath = "https://via.placeholder.com/300x200?text=Book", Category = books, Seller = seller3 },
-                    new Models.Product { Name = "Cooking Basics", Description = "Книга рецептов для начинающих.", Price = 19.50m, Quantity = 60, ImagePath = "https://via.placeholder.com/300x200?text=Cookbook", Category = books, Seller = seller3 },
-            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-                // Clothing
-                new Models.Product { Name = "Classic T-Shirt", Description = "Удобная хлопковая футболка.", Price = 14.99m, Quantity = 200, ImagePath = "https://via.placeholder.com/300x200?text=T-Shirt", Category = clothing, Seller = seller1 },
-                    new Models.Product { Name = "Denim Jeans", Description = "Классические джинсы строгого кроя.", Price = 49.99m, Quantity = 80, ImagePath = "https://via.placeholder.com/300x200?text=Jeans", Category = clothing, Seller = seller1 },
-            string[] roles = { "Admin", "Seller", "User" };
-                foreach (var role in roles)
+                // ensure categories exist (idempotent)
+                string[] catNames = { "Electronics", "Home Appliances", "Books", "Clothing", "Toys" };
+                foreach (var name in catNames)
                 {
-                    if (!await roleManager.RoleExistsAsync(role))
-                        await roleManager.CreateAsync(new IdentityRole(role));
+                    if (!ctx.Categories.Any(c => c.Name == name))
+                        ctx.Categories.Add(new Models.Category { Name = name });
+                }
+                ctx.SaveChanges();
+
+                // ensure sellers
+                (string id, string shop, string desc)[] sellers = {
+                    ("system","Default Shop","Seeded seller"),
+                    ("shop2","HomeGoods","Household items"),
+                    ("bookseller","Books & Co.","Bookseller")
+                };
+                foreach (var s in sellers)
+                {
+                    if (!ctx.Sellers.Any(x => x.ShopName == s.shop))
+                        ctx.Sellers.Add(new Models.Seller { UserId = s.id, ShopName = s.shop, Description = s.desc });
+                }
+                ctx.SaveChanges();
+
+                // get references
+                var electronics = ctx.Categories.First(c => c.Name == "Electronics");
+                var appliances = ctx.Categories.First(c => c.Name == "Home Appliances");
+                var books = ctx.Categories.First(c => c.Name == "Books");
+                var clothing = ctx.Categories.First(c => c.Name == "Clothing");
+                var toys = ctx.Categories.First(c => c.Name == "Toys");
+
+                var seller1 = ctx.Sellers.First(s => s.ShopName == "Default Shop");
+                var seller2 = ctx.Sellers.First(s => s.ShopName == "HomeGoods");
+                var seller3 = ctx.Sellers.First(s => s.ShopName == "Books & Co.");
+
+                // idempotent add products by name
+                void AddIfMissing(string name, Models.Product product)
+                {
+                    if (!ctx.Products.Any(p => p.Name == name)) ctx.Products.Add(product);
                 }
 
-                // Toys
-                new Models.Product { Name = "Building Blocks Set", Description = "Набор конструктора для детей.", Price = 29.99m, Quantity = 150, ImagePath = "https://via.placeholder.com/300x200?text=Blocks", Category = toys, Seller = seller2 },
-                    new Models.Product { Name = "Remote Car Racer", Description = "Машинка на радиоуправлении для детей.", Price = 49.99m, Quantity = 70, ImagePath = "https://via.placeholder.com/300x200?text=Car", Category = toys, Seller = seller2 }
-                );
+                AddIfMissing("Notebook Alpha", new Models.Product { Name = "Notebook Alpha", Description = "Р›С‘РіРєРёР№ РЅРѕСѓС‚Р±СѓРє РґР»СЏ РїРѕРІСЃРµРґРЅРµРІРЅС‹С… Р·Р°РґР°С‡.", Price = 149.99m, Quantity = 10, ImagePath = "https://via.placeholder.com/300x200?text=Notebook", Category = electronics, Seller = seller1 });
+                AddIfMissing("Wireless Mouse Mini", new Models.Product { Name = "Wireless Mouse Mini", Description = "РљРѕРјРїР°РєС‚РЅР°СЏ СЌСЂРіРѕРЅРѕРјРёС‡РЅР°СЏ Р±РµСЃРїСЂРѕРІРѕРґРЅР°СЏ РјС‹С€СЊ.", Price = 24.50m, Quantity = 50, ImagePath = "https://via.placeholder.com/300x200?text=Mouse", Category = electronics, Seller = seller1 });
+                AddIfMissing("Mechanical Keyboard X", new Models.Product { Name = "Mechanical Keyboard X", Description = "РњРµС…Р°РЅРёС‡РµСЃРєР°СЏ РєР»Р°РІРёР°С‚СѓСЂР° СЃ С‚Р°РєС‚РёР»СЊРЅС‹РјРё РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЏРјРё.", Price = 89.90m, Quantity = 20, ImagePath = "https://via.placeholder.com/300x200?text=Keyboard", Category = electronics, Seller = seller1 });
+
+                AddIfMissing("Air Purifier Pro", new Models.Product { Name = "Air Purifier Pro", Description = "РљРѕРјРїР°РєС‚РЅС‹Р№ РѕС‡РёСЃС‚РёС‚РµР»СЊ РІРѕР·РґСѓС…Р° РґР»СЏ РґРѕРјР°.", Price = 129.00m, Quantity = 25, ImagePath = "https://via.placeholder.com/300x200?text=Air+Purifier", Category = appliances, Seller = seller2 });
+                AddIfMissing("Blender 500W", new Models.Product { Name = "Blender 500W", Description = "РњРѕС‰РЅС‹Р№ Р±Р»РµРЅРґРµСЂ РґР»СЏ СЃРјСѓР·Рё Рё СЃСѓРїРѕРІ.", Price = 59.99m, Quantity = 40, ImagePath = "https://via.placeholder.com/300x200?text=Blender", Category = appliances, Seller = seller2 });
+
+                AddIfMissing("C# in Depth", new Models.Product { Name = "C# in Depth", Description = "РџСЂР°РєС‚РёС‡РµСЃРєРѕРµ СЂСѓРєРѕРІРѕРґСЃС‚РІРѕ РїРѕ C#.", Price = 39.99m, Quantity = 100, ImagePath = "https://via.placeholder.com/300x200?text=Book", Category = books, Seller = seller3 });
+                AddIfMissing("Cooking Basics", new Models.Product { Name = "Cooking Basics", Description = "РљРЅРёРіР° СЂРµС†РµРїС‚РѕРІ РґР»СЏ РЅР°С‡РёРЅР°СЋС‰РёС….", Price = 19.50m, Quantity = 60, ImagePath = "https://via.placeholder.com/300x200?text=Cookbook", Category = books, Seller = seller3 });
+
+                AddIfMissing("Classic T-Shirt", new Models.Product { Name = "Classic T-Shirt", Description = "РЈРґРѕР±РЅР°СЏ С…Р»РѕРїРєРѕРІР°СЏ С„СѓС‚Р±РѕР»РєР°.", Price = 14.99m, Quantity = 200, ImagePath = "https://via.placeholder.com/300x200?text=T-Shirt", Category = clothing, Seller = seller1 });
+                AddIfMissing("Denim Jeans", new Models.Product { Name = "Denim Jeans", Description = "РљР»Р°СЃСЃРёС‡РµСЃРєРёРµ РґР¶РёРЅСЃС‹ СЃС‚СЂРѕРіРѕРіРѕ РєСЂРѕСЏ.", Price = 49.99m, Quantity = 80, ImagePath = "https://via.placeholder.com/300x200?text=Jeans", Category = clothing, Seller = seller1 });
+
+                AddIfMissing("Building Blocks Set", new Models.Product { Name = "Building Blocks Set", Description = "РќР°Р±РѕСЂ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° РґР»СЏ РґРµС‚РµР№.", Price = 29.99m, Quantity = 150, ImagePath = "https://via.placeholder.com/300x200?text=Blocks", Category = toys, Seller = seller2 });
+                AddIfMissing("Remote Car Racer", new Models.Product { Name = "Remote Car Racer", Description = "РњР°С€РёРЅРєР° РЅР° СЂР°РґРёРѕСѓРїСЂР°РІР»РµРЅРёРё РґР»СЏ РґРµС‚РµР№.", Price = 49.99m, Quantity = 70, ImagePath = "https://via.placeholder.com/300x200?text=Car", Category = toys, Seller = seller2 });
+
+                ctx.SaveChanges();
             }
-        public static async Task InitializeAdminAsync(this IServiceProvider services) {
+            catch (Exception ex)
+            {
+                var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger("SeedData");
+                logger.LogError(ex, "Error seeding the database.");
+            }
+        }
+        public static async Task InitializeAdminAsync(this IServiceProvider services)
+        {
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+            string[] roles = { "Admin", "Seller", "User" };
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole(role));
+            }
+
             string adminEmail = "admin@cloneprom.com";
             string adminPassword = "Admin123!";
 
-            ctx.SaveChanges();
-        }
-            catch (Exception ex)
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
                 var admin = new ApplicationUser
                 {
-                var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger("SeedData");
-                logger.LogError(ex, "Error seeding the database.");
                     UserName = adminEmail,
                     Email = adminEmail
                 };
-        var result = await userManager.CreateAsync(admin, adminPassword);
+                var result = await userManager.CreateAsync(admin, adminPassword);
                 if (result.Succeeded)
                     await userManager.AddToRoleAsync(admin, "Admin");
-            }
             }
         }
     }

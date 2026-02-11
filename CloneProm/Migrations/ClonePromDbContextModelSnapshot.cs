@@ -109,7 +109,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("CloneProm.Models.Order", b =>
@@ -138,7 +138,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("CloneProm.Models.OrderItem", b =>
@@ -167,7 +167,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("CloneProm.Models.Product", b =>
@@ -217,7 +217,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("CloneProm.Models.Review", b =>
@@ -251,7 +251,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("CloneProm.Models.Seller", b =>
@@ -284,7 +284,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Sellers");
+                    b.ToTable("Sellers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

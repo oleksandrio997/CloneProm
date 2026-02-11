@@ -44,11 +44,11 @@
                                         <strong class="text-danger">@product.Price.ToString("C")</strong>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <form asp-controller="Favorites" asp-action="ToggleFavorite" method="post" class="d-inline-block">
+                                        <form asp-controller="Favorites" asp-action="ToggleFavorite" method="post" class="d-inline-block ajax-fav-form">
                                             <input type="hidden" name="productId" value="@product.Id" />
                                             <button type="submit" class="btn btn-outline-secondary btn-sm btn-toggle-fav">❤</button>
                                         </form>
-                                        <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline-block">
+                                        <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline-block ajax-cart-form">
                                             <input type="hidden" name="productId" value="@product.Id" />
                                             <button type="submit" class="btn btn-primary btn-sm btn-add-cart">Купить</button>
                                         </form>
