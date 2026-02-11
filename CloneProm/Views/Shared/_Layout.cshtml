@@ -41,7 +41,7 @@
                     </ul>
 
                     <form class="d-flex me-3" asp-controller="Home" asp-action="Index" method="get">
-                        <input name="q" value="@(ViewContext.HttpContext.Request.Query["q"].ToString() ?? "")" class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
+                        <input id="searchInput" name="q" value="@(ViewContext.HttpContext.Request.Query["q"].ToString() ?? "")" class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
                         <button class="btn btn-outline-primary" type="submit">Search</button>
                     </form>
 

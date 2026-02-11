@@ -33,7 +33,6 @@ namespace CloneProm.Controllers
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         public IActionResult AddToCart(int productId, int quantity = 1)
         {
             var sessionItems = HttpContext.Session.GetObject<List<SessionCartItem>>(SessionCartKey) ?? new List<SessionCartItem>();

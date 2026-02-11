@@ -16,7 +16,7 @@
     <div class="col-md-3">
         <h5>Categories</h5>
         <div class="list-group mb-4">
-            <a class="list-group-item list-group-item-action @(Model.SelectedCategoryId == null ? "active" : "")" href="@Url.Action("Index", "Home")">All</a>
+            <a class="list-group-item list-group-item-action @(Model.SelectedCategoryId == null ? "active" : "")" href="@Url.Action("Index", "Home", new { q = Model.SearchQuery })">All</a>
             @foreach (var category in Model.Categories)
             {
                 var isActive = Model.SelectedCategoryId.HasValue && Model.SelectedCategoryId.Value == category.Id ? "active" : "";
@@ -44,11 +44,11 @@
                                         <strong class="text-danger">@product.Price.ToString("C")</strong>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <form asp-controller="Favorites" asp-action="ToggleFavorite" method="post" class="d-inline-block ajax-fav-form">
+                                        <form asp-controller="Favorites" asp-action="ToggleFavorite" method="post" class="d-inline-block ajax-fav-form" action="@Url.Action("ToggleFavorite", "Favorites")">
                                             <input type="hidden" name="productId" value="@product.Id" />
                                             <button type="submit" class="btn btn-outline-secondary btn-sm btn-toggle-fav">❤</button>
                                         </form>
-                                        <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline-block ajax-cart-form">
+                                        <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline-block ajax-cart-form" action="@Url.Action("AddToCart","Cart")">
                                             <input type="hidden" name="productId" value="@product.Id" />
                                             <button type="submit" class="btn btn-primary btn-sm btn-add-cart">Купить</button>
                                         </form>
