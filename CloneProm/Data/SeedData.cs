@@ -9,7 +9,7 @@ namespace CloneProm.Data
 {
     public static class SeedData
     {
-        public static void Initialize(IServiceProvider services)
+        public static void Initialize(this IServiceProvider services)
         {
             using var scope = services.CreateScope();
             var provider = scope.ServiceProvider;

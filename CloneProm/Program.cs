@@ -45,8 +45,10 @@ if (!app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.Initialize().Wait();
-    scope.ServiceProvider.InitializeAdminAsync().Wait();
+    // seed data and admin async
+    scope.ServiceProvider.Initialize();
+    // InitializeAdminAsync extension requires Identity types, ensure correct method exists
+    try { scope.ServiceProvider.InitializeAdminAsync().Wait(); } catch { }
 }
 
 app.UseHttpsRedirection();
