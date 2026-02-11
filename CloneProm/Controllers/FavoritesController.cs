@@ -24,6 +24,7 @@ namespace CloneProm.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ToggleFavorite(int productId)
         {
             var favIds = HttpContext.Session.GetObject<List<int>>(SessionFavKey) ?? new List<int>();
@@ -37,7 +38,11 @@ namespace CloneProm.Controllers
             }
 
             HttpContext.Session.SetObject(SessionFavKey, favIds);
-            return Json(new { success = true, count = favIds.Count, added = favIds.Contains(productId) });
+            var result = new { success = true, count = favIds.Count, added = favIds.Contains(productId) };
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Json(result);
+
+            return RedirectToAction("Index");
         }
     }
 }

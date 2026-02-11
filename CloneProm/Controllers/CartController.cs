@@ -33,6 +33,7 @@ namespace CloneProm.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AddToCart(int productId, int quantity = 1)
         {
             var sessionItems = HttpContext.Session.GetObject<List<SessionCartItem>>(SessionCartKey) ?? new List<SessionCartItem>();
@@ -47,7 +48,12 @@ namespace CloneProm.Controllers
             }
 
             HttpContext.Session.SetObject(SessionCartKey, sessionItems);
-            return Json(new { success = true, count = sessionItems.Sum(i => i.Quantity) });
+            var result = new { success = true, count = sessionItems.Sum(i => i.Quantity) };
+            // respond JSON for AJAX, otherwise redirect to cart page
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Json(result);
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
