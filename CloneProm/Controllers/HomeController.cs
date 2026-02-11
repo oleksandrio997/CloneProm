@@ -48,6 +48,24 @@ namespace CloneProm.Controllers
             return View(model);
         }
 
+        // Diagnostic endpoint to check DB contents when debugging
+        [HttpGet]
+        [Route("home/dbstatus")]
+        public async Task<IActionResult> DbStatus()
+        {
+            try
+            {
+                var cats = await _context.Categories.CountAsync();
+                var prods = await _context.Products.CountAsync();
+                return Json(new { categories = cats, products = prods });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DbStatus error");
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         public IActionResult Privacy()
         {
             return View();
