@@ -12,8 +12,14 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-
 <body>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container d-flex align-items-center">
+                <div class="header-left d-flex align-items-center me-3">
+                    <a class="navbar-brand site-brand fw-bold text-dark mb-0"
+                       asp-controller="Home" asp-action="Index">kram</a>
+                </div>
 
                 <div class="header-center flex-fill d-flex justify-content-center">
                     <form class="search-form w-75" asp-controller="Home" asp-action="Index" method="get">
@@ -23,119 +29,71 @@
                         </div>
                     </form>
                 </div>
-    <!-- ================= HEADER ================= -->
-    <header class="main-header">
 
                 <div class="header-right d-flex align-items-center ms-3">
                     <ul class="nav-icons list-unstyled d-flex mb-0 align-items-center gap-3">
-                        <li><a class="icon-link" asp-area="Identity" asp-page="/Account/Login">Кабінет</a></li>
+                        @using Microsoft.AspNetCore.Identity
+                        @using CloneProm.Models
+                        @inject SignInManager<ApplicationUser> SignInManager
+                        @inject UserManager<ApplicationUser> UserManager
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                                    Hello, @User.Identity?.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (User.IsInRole("Seller") || User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Product"
+                                               asp-action="Create">Add Product</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Product"
+                                               asp-action="Index">My Products</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Account"
+                                               asp-action="BecomeSeller">Become a Seller</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li><a class="icon-link" href="#" onclick="openLogin()">Login</a></li>
+                            <li><a class="icon-link" href="#" onclick="openRegister()">Register</a></li>
+                        }
+
                         <li><a class="icon-link" asp-controller="Favorites" asp-action="Index">Бажане</a></li>
                         <li><a class="icon-link" asp-controller="Cart" asp-action="Index">Кошик</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
-        <!-- TOP NAVBAR -->
-        <div class="top-header">
-            <div class="container-fluid d-flex align-items-center justify-content-between">
-
-                <!-- LOGO -->
-                <a asp-controller="Home" asp-action="Index" class="logo">
-                    KRAM
-                </a>
-
-                <!-- SEARCH -->
-                <form asp-controller="Product" asp-action="Catalog" method="get" class="search-box">
-                    <input type="text" name="query" placeholder="I am searching..." />
-                    <button type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
-
-                <!-- RIGHT ACTIONS -->
-                <div class="header-actions">
-
-                    @await Html.PartialAsync("_LoginPartial")
-
-                    <a asp-controller="Wishlist" asp-action="Index" class="header-icon">
-                        <i class="bi bi-heart"></i>
-                        <span>Wishlist</span>
-                    </a>
-
-                    <a asp-controller="Cart" asp-action="Index" class="header-icon cart">
-                        <i class="bi bi-cart"></i>
-                        <span>Cart</span>
-                        <div class="cart-badge">0</div>
-                    </a>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- CATEGORY BAR -->
-        <div class="category-bar">
-            <div class="container-fluid d-flex gap-4">
-
-                <div class="category-item">
-                    <span>Electronics</span>
-                    <div class="mega-menu">
-                        <div class="mega-column">
-                            <h6>Computers</h6>
-                            <a href="#">Laptops</a>
-                            <a href="#">Monitors</a>
-                            <a href="#">PC Components</a>
-                        </div>
-
-                        <div class="mega-column">
-                            <h6>Phones</h6>
-                            <a href="#">Smartphones</a>
-                            <a href="#">Accessories</a>
-                            <a href="#">Chargers</a>
-                        </div>
-
-                        <div class="mega-column">
-                            <h6>TV & Audio</h6>
-                            <a href="#">Televisions</a>
-                            <a href="#">Speakers</a>
-                            <a href="#">Headphones</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="category-item">
-                    <span>Home</span>
-                    <div class="mega-menu">
-                        <div class="mega-column">
-                            <a href="#">Furniture</a>
-                            <a href="#">Lighting</a>
-                            <a href="#">Kitchen</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="category-item">
-                    <span>Clothing</span>
-                    <div class="mega-menu">
-                        <div class="mega-column">
-                            <a href="#">Men</a>
-                            <a href="#">Women</a>
-                            <a href="#">Kids</a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
     </header>
 
-    <!-- ================= MAIN ================= -->
     <main class="container mt-4">
         @RenderBody()
     </main>
 
-    <!-- ================= FOOTER ================= -->
-    <footer class="bg-light border-top mt-5 py-3">
+    <footer class="bg-light border-top mt-4 py-3">
         <div class="container text-center">
             &copy; @DateTime.Now.Year - KRAM Marketplace
         </div>
@@ -145,114 +103,52 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-            $(function(){
-                // Ajax submit for cart / favorites forms
-                $(document).on('submit', '.ajax-cart-form', function(e){
-                    e.preventDefault();
-                    var $form = $(this);
-                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
-                    console.log('POST', $form.attr('action'), $form.serialize());
-                    $.ajax({
-                        url: $form.attr('action'),
-                        method: 'POST',
-                        data: $form.serialize(),
-                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .done(function(){
-                        // simple feedback
-                        $form.find('button').text('Добавлено').prop('disabled', true);
-                        setTimeout(function(){ $form.find('button').text('Купить').prop('disabled', false); }, 1500);
-                    })
-                    .fail(function(xhr, status, err){
-                        console.error('Cart AJAX error', status, err, xhr.responseText);
-                        alert('Ошибка при добавлении в корзину: ' + (xhr.responseText || status));
-                    });
-                    return false;
-                });
     @await RenderSectionAsync("Scripts", required: false)
 
-    <!-- ================= AUTH SIDEBAR ================= -->
-
-    <div id="authOverlay" class="auth-overlay d-none"></div>
-
-    <div id="authSidebar" class="auth-sidebar">
-        <div class="auth-header">
-            <h5 id="authTitle">Login</h5>
-            <button type="button" class="auth-close" onclick="closeAuth()">×</button>
-        </div>
-
-        <div class="auth-body">
-
-            <div id="loginForm">
-                <form asp-controller="Account" asp-action="Login" method="post">
-                    <label>Email</label>
-                    <input name="Email" type="email" class="auth-input" required />
-
-                    <label>Password</label>
-                    <input name="Password" type="password" class="auth-input" required />
-
-                    <button type="submit" class="auth-btn">Login</button>
-
-                    <div class="auth-footer">
-                        Don't have an account?
-                        <a href="#" onclick="showRegister()">Register</a>
-                    </div>
-                </form>
-            </div>
-
-            <div id="registerForm" class="d-none">
-                <form asp-controller="Account" asp-action="Register" method="post">
-                    <label>Email</label>
-                    <input name="Email" type="email" class="auth-input" required />
-
-                $(document).on('submit', '.ajax-fav-form', function(e){
-                    e.preventDefault();
-                    var $form = $(this);
-                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
-                    console.log('POST', $form.attr('action'), $form.serialize());
-                    $.ajax({
-                        url: $form.attr('action'),
-                        method: 'POST',
-                        data: $form.serialize(),
-                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
-                    }).done(function(res){
-                        if(res && res.added){
-                            $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
-                        } else {
-                            $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
-                        }
-                    }).fail(function(xhr, status, err){
-                        console.error('Fav AJAX error', status, err, xhr.responseText);
-                        alert('Ошибка при добавлении в избранное: ' + (xhr.responseText || status));
-                    });
-                    return false;
+    <script>
+        $(function(){
+            // Ajax submit for cart / favorites forms
+            $(document).on('submit', '.ajax-cart-form', function(e){
+                e.preventDefault();
+                var $form = $(this);
+                var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    url: $form.attr('action'),
+                    method: 'POST',
+                    data: $form.serialize(),
+                    headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .done(function(){
+                    $form.find('button').text('Додано').prop('disabled', true);
+                    setTimeout(function(){ $form.find('button').text('Купити').prop('disabled', false); }, 1500);
+                })
+                .fail(function(xhr, status, err){
+                    alert('Помилка при додаванні до кошика: ' + (xhr.responseText || status));
                 });
             });
-    </script>
-    @await RenderSectionAsync("Scripts", required: false)
-                    <label>Full Name</label>
-                    <input name="FullName" class="auth-input" required />
 
-                    <label>Password</label>
-                    <input name="Password" type="password" class="auth-input" required />
+            $(document).on('submit', '.ajax-fav-form', function(e){
+                e.preventDefault();
+                var $form = $(this);
+                var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    url: $form.attr('action'),
+                    method: 'POST',
+                    data: $form.serialize(),
+                    headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                }).done(function(res){
+                    if(res && res.added){
+                        $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
+                    } else {
+                        $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
+                    }
+                }).fail(function(xhr, status, err){
+                    alert('Помилка при додаванні до бажаного: ' + (xhr.responseText || status));
+                });
+            });
+        });
 
-                    <label>Confirm Password</label>
-                    <input name="ConfirmPassword" type="password" class="auth-input" required />
-
-                    <button type="submit" class="auth-btn">Register</button>
-
-                    <div class="auth-footer">
-                        Already have an account?
-                        <a href="#" onclick="showLogin()">Login</a>
-                    </div>
-                </form>
-            </div>
-
-        </div>
-    </div>
-
-    <script>
+        // Sidebar login/register
         function openLogin() {
             document.getElementById("authSidebar").classList.add("active");
             document.getElementById("authOverlay").classList.remove("d-none");
@@ -282,6 +178,48 @@
             document.getElementById("authTitle").innerText = "Login";
         }
     </script>
+
+    <!-- ================= AUTH SIDEBAR ================= -->
+    <div id="authOverlay" class="auth-overlay d-none"></div>
+    <div id="authSidebar" class="auth-sidebar">
+        <div class="auth-header">
+            <h5 id="authTitle">Login</h5>
+            <button type="button" class="auth-close" onclick="closeAuth()">×</button>
+        </div>
+        <div class="auth-body">
+            <div id="loginForm">
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    <label>Email</label>
+                    <input name="Email" type="email" class="auth-input" required />
+                    <label>Password</label>
+                    <input name="Password" type="password" class="auth-input" required />
+                    <button type="submit" class="auth-btn">Login</button>
+                    <div class="auth-footer">
+                        Don't have an account?
+                        <a href="#" onclick="showRegister()">Register</a>
+                    </div>
+                </form>
+            </div>
+
+            <div id="registerForm" class="d-none">
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    <label>Email</label>
+                    <input name="Email" type="email" class="auth-input" required />
+                    <label>Full Name</label>
+                    <input name="FullName" class="auth-input" required />
+                    <label>Password</label>
+                    <input name="Password" type="password" class="auth-input" required />
+                    <label>Confirm Password</label>
+                    <input name="ConfirmPassword" type="password" class="auth-input" required />
+                    <button type="submit" class="auth-btn">Register</button>
+                    <div class="auth-footer">
+                        Already have an account?
+                        <a href="#" onclick="showLogin()">Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
