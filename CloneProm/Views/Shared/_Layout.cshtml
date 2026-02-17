@@ -8,68 +8,213 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CloneProm.styles.css" asp-append-version="true" />
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand fw-bold text-primary"
-                   asp-controller="Home" asp-action="Index">KRAM</a>
 
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+    <!-- ================= HEADER ================= -->
+    <header class="main-header">
 
-                <div class="collapse navbar-collapse" id="mainNavbar">
+        <!-- TOP NAVBAR -->
+        <div class="top-header">
+            <div class="container-fluid d-flex align-items-center justify-content-between">
 
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active"
-                               asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Cart"
-                               asp-action="Index">Cart</a>
-                        </li>
-                    </ul>
+                <!-- LOGO -->
+                <a asp-controller="Home" asp-action="Index" class="logo">
+                    KRAM
+                </a>
 
-                    <form class="d-flex me-3">
-                        <input class="form-control me-2"
-                               type="search"
-                               placeholder="Search products..." />
-                        <button class="btn btn-outline-primary">
-                            Search
-                        </button>
-                    </form>
+                <!-- SEARCH -->
+                <form asp-controller="Product" asp-action="Catalog" method="get" class="search-box">
+                    <input type="text" name="query" placeholder="I am searching..." />
+                    <button type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
 
-					@await Html.PartialAsync("_LoginPartial")
-                    
+                <!-- RIGHT ACTIONS -->
+                <div class="header-actions">
+
+                    @await Html.PartialAsync("_LoginPartial")
+
+                    <a asp-controller="Wishlist" asp-action="Index" class="header-icon">
+                        <i class="bi bi-heart"></i>
+                        <span>Wishlist</span>
+                    </a>
+
+                    <a asp-controller="Cart" asp-action="Index" class="header-icon cart">
+                        <i class="bi bi-cart"></i>
+                        <span>Cart</span>
+                        <div class="cart-badge">0</div>
+                    </a>
+
                 </div>
             </div>
-        </nav>
+        </div>
+
+        <!-- CATEGORY BAR -->
+        <div class="category-bar">
+            <div class="container-fluid d-flex gap-4">
+
+                <div class="category-item">
+                    <span>Electronics</span>
+                    <div class="mega-menu">
+                        <div class="mega-column">
+                            <h6>Computers</h6>
+                            <a href="#">Laptops</a>
+                            <a href="#">Monitors</a>
+                            <a href="#">PC Components</a>
+                        </div>
+
+                        <div class="mega-column">
+                            <h6>Phones</h6>
+                            <a href="#">Smartphones</a>
+                            <a href="#">Accessories</a>
+                            <a href="#">Chargers</a>
+                        </div>
+
+                        <div class="mega-column">
+                            <h6>TV & Audio</h6>
+                            <a href="#">Televisions</a>
+                            <a href="#">Speakers</a>
+                            <a href="#">Headphones</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-item">
+                    <span>Home</span>
+                    <div class="mega-menu">
+                        <div class="mega-column">
+                            <a href="#">Furniture</a>
+                            <a href="#">Lighting</a>
+                            <a href="#">Kitchen</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-item">
+                    <span>Clothing</span>
+                    <div class="mega-menu">
+                        <div class="mega-column">
+                            <a href="#">Men</a>
+                            <a href="#">Women</a>
+                            <a href="#">Kids</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </header>
 
+    <!-- ================= MAIN ================= -->
     <main class="container mt-4">
         @RenderBody()
     </main>
 
-    <footer class="bg-light border-top mt-4 py-3">
+    <!-- ================= FOOTER ================= -->
+    <footer class="bg-light border-top mt-5 py-3">
         <div class="container text-center">
             &copy; @DateTime.Now.Year - KRAM Marketplace
         </div>
     </footer>
 
+    <!-- ================= SCRIPTS ================= -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- ================= AUTH SIDEBAR ================= -->
+
+    <div id="authOverlay" class="auth-overlay d-none"></div>
+
+    <div id="authSidebar" class="auth-sidebar">
+        <div class="auth-header">
+            <h5 id="authTitle">Login</h5>
+            <button type="button" class="auth-close" onclick="closeAuth()">×</button>
+        </div>
+
+        <div class="auth-body">
+
+            <div id="loginForm">
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    <label>Email</label>
+                    <input name="Email" type="email" class="auth-input" required />
+
+                    <label>Password</label>
+                    <input name="Password" type="password" class="auth-input" required />
+
+                    <button type="submit" class="auth-btn">Login</button>
+
+                    <div class="auth-footer">
+                        Don't have an account?
+                        <a href="#" onclick="showRegister()">Register</a>
+                    </div>
+                </form>
+            </div>
+
+            <div id="registerForm" class="d-none">
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    <label>Email</label>
+                    <input name="Email" type="email" class="auth-input" required />
+
+                    <label>Full Name</label>
+                    <input name="FullName" class="auth-input" required />
+
+                    <label>Password</label>
+                    <input name="Password" type="password" class="auth-input" required />
+
+                    <label>Confirm Password</label>
+                    <input name="ConfirmPassword" type="password" class="auth-input" required />
+
+                    <button type="submit" class="auth-btn">Register</button>
+
+                    <div class="auth-footer">
+                        Already have an account?
+                        <a href="#" onclick="showLogin()">Login</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function openLogin() {
+            document.getElementById("authSidebar").classList.add("active");
+            document.getElementById("authOverlay").classList.remove("d-none");
+            showLogin();
+        }
+
+        function openRegister() {
+            document.getElementById("authSidebar").classList.add("active");
+            document.getElementById("authOverlay").classList.remove("d-none");
+            showRegister();
+        }
+
+        function closeAuth() {
+            document.getElementById("authSidebar").classList.remove("active");
+            document.getElementById("authOverlay").classList.add("d-none");
+        }
+
+        function showRegister() {
+            document.getElementById("loginForm").classList.add("d-none");
+            document.getElementById("registerForm").classList.remove("d-none");
+            document.getElementById("authTitle").innerText = "Register";
+        }
+
+        function showLogin() {
+            document.getElementById("registerForm").classList.add("d-none");
+            document.getElementById("loginForm").classList.remove("d-none");
+            document.getElementById("authTitle").innerText = "Login";
+        }
+    </script>
+
 </body>
 </html>

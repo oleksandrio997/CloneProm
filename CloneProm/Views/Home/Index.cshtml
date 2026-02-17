@@ -5,41 +5,61 @@
 }
 
 <div class="row mb-4">
-    <div class="col-12 text-center bg-primary text-white p-5 rounded">
-        <h1>Welcome to Kram Marketplace</h1>
-        <p>Discover products from trusted sellers</p>
-        <a class="btn btn-light btn-lg mt-3" asp-controller="Home" asp-action="Index">Shop Now</a>
+    <div class="col-12 bg-primary text-white p-5 rounded text-center">
+        <h1>KRAM Marketplace</h1>
+        <p>Buy from trusted sellers</p>
+        <a asp-controller="Product"
+           asp-action="Catalog"
+           class="btn btn-light btn-lg mt-3">
+            All products
+        </a>
     </div>
 </div>
 
 <div class="row">
+    <!-- Categories -->
     <div class="col-md-3">
         <h5>Categories</h5>
-        <div class="list-group mb-4">
+        <div class="list-group">
             @foreach (var category in Model.Categories)
             {
-                <a class="list-group-item list-group-item-action" href="@Url.Action("Category", "Product", new { id = category.Id })">
+                <a class="list-group-item list-group-item-action">
                     @category.Name
                 </a>
             }
         </div>
     </div>
 
+    <!-- Products -->
     <div class="col-md-9">
         <div class="row">
             @foreach (var product in Model.Products)
             {
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        <img src="@product.ImagePath ?? " https: //via.placeholder.com/300x200"" class="card-img-top" alt="@product.Name" />
+                        <img src="@(!string.IsNullOrEmpty(product.ImagePath)
+                                                         ? product.ImagePath
+                                                         : "https://via.placeholder.com/300x200")"
+                         class="card-img-top" />
+
                         <div class="card-body">
-                            <h5 class="card-title">@product.Name</h5>
-                            <p class="card-text text-danger fw-bold">@product.Price.ToString("C")</p>
-                            <a class="btn btn-primary" asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">View</a>
+                            <h6>@product.Name</h6>
+                            <span class="fw-bold text-danger">
+                                @product.Price.ToString("₴0.00")
+                            </span>
+                        </div>
+
+                        <div class="card-footer bg-white border-0">
+                            <a asp-controller="Product"
+                               asp-action="Details"
+                               asp-route-id="@product.Id"
+                               class="btn btn-primary w-100">
+                                View
+                            </a>
                         </div>
                     </div>
                 </div>
-            }
+                        }
         </div>
     </div>
 </div>

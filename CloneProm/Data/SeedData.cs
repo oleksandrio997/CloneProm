@@ -31,6 +31,20 @@ namespace CloneProm.Data
                 if (result.Succeeded)
                     await userManager.AddToRoleAsync(admin, "Admin");
             }
+
+            var context = services.GetRequiredService<ClonePromDbContext>();
+
+            if (!context.Categories.Any())
+            {
+                context.Categories.AddRange(
+                    new Category { Name = "Electronics" },
+                    new Category { Name = "Clothing" },
+                    new Category { Name = "Books" },
+                    new Category { Name = "Sports" },
+                    new Category { Name = "Home & Garden" }
+                );
+                await context.SaveChangesAsync();
+            }
         }
     }
 }
