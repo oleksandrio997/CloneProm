@@ -45,10 +45,28 @@ if (!app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    // seed data and admin async
-    scope.ServiceProvider.Initialize();
-    // InitializeAdminAsync extension requires Identity types, ensure correct method exists
-    try { scope.ServiceProvider.InitializeAdminAsync().Wait(); } catch { }
+    // seed roles/users first, then seed data that relies on them.
+    try
+    {
+        // InitializeAdminAsync sets up roles and an admin user.
+        await scope.ServiceProvider.InitializeAdminAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupSeed");
+        logger.LogError(ex, "Error initializing admin/roles");
+    }
+
+    try
+    {
+        // Use new async initialize to seed categories/sellers/products
+        await scope.ServiceProvider.InitializeAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupSeed");
+        logger.LogError(ex, "Error seeding initial data");
+    }
 }
 
 app.UseHttpsRedirection();

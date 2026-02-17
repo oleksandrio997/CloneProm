@@ -1,7 +1,9 @@
 ﻿using CloneProm.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +11,7 @@ namespace CloneProm.Data
 {
     public static class SeedData
     {
-        public static void Initialize(this IServiceProvider services)
+        public static async Task InitializeAsync(this IServiceProvider services)
         {
             using var scope = services.CreateScope();
             var provider = scope.ServiceProvider;
@@ -19,8 +21,8 @@ namespace CloneProm.Data
                 // Prefer migrations in production-like DBs. Apply pending migrations before seeding.
                 ctx.Database.Migrate();
 
-                // if any products exist, assume DB already seeded
-                if (ctx.Products.Any()) return;
+                // do not short-circuit seeding when some products exist; keep idempotent AddIfMissing
+                // (previous behavior could skip adding missing seed items if Products.Any() was true)
 
                 // ensure categories exist (idempotent)
                 string[] catNames = { "Electronics", "Home Appliances", "Books", "Clothing", "Toys" };
@@ -33,16 +35,51 @@ namespace CloneProm.Data
                 var loggerInfo = provider.GetRequiredService<ILoggerFactory>().CreateLogger("SeedData");
                 loggerInfo.LogInformation("SeedData: categories={CountCats}, sellers={CountSellers}, products={CountProds}", ctx.Categories.Count(), ctx.Sellers.Count(), ctx.Products.Count());
 
-                // ensure sellers
-                (string id, string shop, string desc)[] sellers = {
-                    ("system","Default Shop","Seeded seller"),
-                    ("shop2","HomeGoods","Household items"),
-                    ("bookseller","Books & Co.","Bookseller")
+                // Ensure admin and roles/users exist before creating sellers that reference users.
+                // Try to create minimal users if they don't exist to satisfy FK constraints.
+                var userManager = provider.GetService<UserManager<ApplicationUser>>();
+                if (userManager != null)
+                {
+                    // desired seed users and their emails
+                    string[] seedEmails = { "system@local", "shop2@local", "bookseller@local" };
+
+                    foreach (var email in seedEmails)
+                    {
+                        // Find by email first; if doesn't exist, create with fixed password
+                        var existing = await userManager.FindByEmailAsync(email).ConfigureAwait(false);
+                        if (existing == null)
+                        {
+                            var u = new ApplicationUser { UserName = email, Email = email };
+                            var createRes = await userManager.CreateAsync(u, "ChangeMe123!").ConfigureAwait(false);
+                            // we don't need to store the Id here; sellers will be created without UserId
+                        }
+                    }
+                }
+
+                // ensure sellers and associate them with the created users (UserId is non-nullable FK)
+                (string email, string shop, string desc)[] sellers = {
+                    ("system@local","Default Shop","Seeded seller"),
+                    ("shop2@local","HomeGoods","Household items"),
+                    ("bookseller@local","Books & Co.","Bookseller")
                 };
+
                 foreach (var s in sellers)
                 {
+                    // find corresponding application user
+                    var user = await userManager.FindByEmailAsync(s.email).ConfigureAwait(false);
+                    var userId = user?.Id;
+
+                    if (userId == null)
+                    {
+                        // fallback: try to find any user with the same shop name in Sellers (unlikely) or skip
+                        // Log warning and skip creating seller to avoid FK/NOT NULL violations
+                        var lg = provider.GetRequiredService<ILoggerFactory>().CreateLogger("SeedData");
+                        lg.LogWarning("No ApplicationUser found for seller email {Email}; creating seller without user will fail. Skipping.", s.email);
+                        continue;
+                    }
+
                     if (!ctx.Sellers.Any(x => x.ShopName == s.shop))
-                        ctx.Sellers.Add(new Models.Seller { UserId = s.id, ShopName = s.shop, Description = s.desc });
+                        ctx.Sellers.Add(new Models.Seller { UserId = userId, ShopName = s.shop, Description = s.desc });
                 }
                 ctx.SaveChanges();
 
