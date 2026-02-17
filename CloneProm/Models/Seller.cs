@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
 
 namespace CloneProm.Models
 {
@@ -7,7 +9,7 @@ namespace CloneProm.Models
         public int Id { get; set; }
 
         public string UserId { get; set; }
-        public ApplicationUser User { get; set; }
+        public ApplicationUser? User { get; set; }
 
         public string ShopName { get; set; }
         public string Description { get; set; }
@@ -16,6 +18,7 @@ namespace CloneProm.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public ICollection<Product> Products { get; set; }
+        // initialize collections to avoid possible NREs when iterating before EF loads them
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

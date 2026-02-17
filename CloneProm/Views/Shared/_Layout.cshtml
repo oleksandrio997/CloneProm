@@ -15,9 +15,26 @@
 
 <body>
 
+                <div class="header-center flex-fill d-flex justify-content-center">
+                    <form class="search-form w-75" asp-controller="Home" asp-action="Index" method="get">
+                        <div class="input-group">
+                            <input id="searchInput" name="q" value="@(ViewContext.HttpContext.Request.Query["q"].ToString() ?? "")" class="form-control search-input" type="search" placeholder="Я шукаю..." aria-label="Search">
+                            <button class="btn btn-search" type="submit">Знайти</button>
+                        </div>
+                    </form>
+                </div>
     <!-- ================= HEADER ================= -->
     <header class="main-header">
 
+                <div class="header-right d-flex align-items-center ms-3">
+                    <ul class="nav-icons list-unstyled d-flex mb-0 align-items-center gap-3">
+                        <li><a class="icon-link" asp-area="Identity" asp-page="/Account/Login">Кабінет</a></li>
+                        <li><a class="icon-link" asp-controller="Favorites" asp-action="Index">Бажане</a></li>
+                        <li><a class="icon-link" asp-controller="Cart" asp-action="Index">Кошик</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
         <!-- TOP NAVBAR -->
         <div class="top-header">
             <div class="container-fluid d-flex align-items-center justify-content-between">
@@ -128,6 +145,31 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+            $(function(){
+                // Ajax submit for cart / favorites forms
+                $(document).on('submit', '.ajax-cart-form', function(e){
+                    e.preventDefault();
+                    var $form = $(this);
+                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    console.log('POST', $form.attr('action'), $form.serialize());
+                    $.ajax({
+                        url: $form.attr('action'),
+                        method: 'POST',
+                        data: $form.serialize(),
+                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .done(function(){
+                        // simple feedback
+                        $form.find('button').text('Добавлено').prop('disabled', true);
+                        setTimeout(function(){ $form.find('button').text('Купить').prop('disabled', false); }, 1500);
+                    })
+                    .fail(function(xhr, status, err){
+                        console.error('Cart AJAX error', status, err, xhr.responseText);
+                        alert('Ошибка при добавлении в корзину: ' + (xhr.responseText || status));
+                    });
+                    return false;
+                });
     @await RenderSectionAsync("Scripts", required: false)
 
     <!-- ================= AUTH SIDEBAR ================= -->
@@ -164,6 +206,31 @@
                     <label>Email</label>
                     <input name="Email" type="email" class="auth-input" required />
 
+                $(document).on('submit', '.ajax-fav-form', function(e){
+                    e.preventDefault();
+                    var $form = $(this);
+                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    console.log('POST', $form.attr('action'), $form.serialize());
+                    $.ajax({
+                        url: $form.attr('action'),
+                        method: 'POST',
+                        data: $form.serialize(),
+                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                    }).done(function(res){
+                        if(res && res.added){
+                            $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
+                        } else {
+                            $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
+                        }
+                    }).fail(function(xhr, status, err){
+                        console.error('Fav AJAX error', status, err, xhr.responseText);
+                        alert('Ошибка при добавлении в избранное: ' + (xhr.responseText || status));
+                    });
+                    return false;
+                });
+            });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
                     <label>Full Name</label>
                     <input name="FullName" class="auth-input" required />
 

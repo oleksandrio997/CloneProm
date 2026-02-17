@@ -2,6 +2,93 @@ html {
   font-size: 14px;
 }
 
+/* layout for new hero area */
+/* removed hero area styles (reverted) */
+
+/* header / site top bar styling to match grey design */
+.site-header { background:#eef0f1; border-bottom:1px solid #e0e0e0; padding:12px 0; }
+.site-brand { font-size:28px; margin-right:20px; color:#111; text-transform:lowercase; }
+.search-form .input-group { display:flex; }
+.search-input { border-radius:6px 0 0 6px; border:1px solid #dcdcdc; padding:10px 12px; }
+.btn-search { background:#d6d6d6; border:1px solid #cfcfcf; border-left:0; padding:9px 16px; border-radius:0 6px 6px 0; }
+.nav-icons .icon-link { color:#333; text-decoration:none; font-weight:500; }
+
+@media (max-width: 767px) {
+  .search-form.w-75 { width:100% !important; }
+}
+
+/* hero neutral gray theme */
+.hero-hero { background: linear-gradient(180deg, #f6f6f6, #f1f1f1); color:#222; }
+.hero-hero h1 { color:#111; font-weight:700; }
+
+/* emphasized category list styling */
+.list-group .list-group-item {
+  background:#fff;
+  border:1px solid #e6e6e6;
+  border-left:4px solid transparent;
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+
+/* more expressive active state: dark contrast with accent left border */
+.list-group .list-group-item.active {
+  background:#333 !important;
+  color:#fff !important;
+  border-left-color:#007bff !important;
+  font-weight:600;
+}
+/* ensure any nested elements inherit visible color when active */
+.list-group .list-group-item.active * { color:#fff !important; }
+
+.list-group .list-group-item:hover { background:#f6f6f6; border-color:#dcdcdc; }
+
+/* product card modern gray styling */
+.card {
+  border: 1px solid #e9e9e9;
+  border-radius: 8px;
+  background: #ffffff;
+  transition: box-shadow .18s ease, transform .12s ease;
+}
+.card:hover {
+  box-shadow: 0 8px 24px rgba(15, 15, 15, 0.06);
+  transform: translateY(-4px);
+}
+.card .card-img-top {
+  background: #f3f3f3;
+  object-fit: cover;
+}
+.card .card-body { background: transparent; }
+.card .card-title { color: #111; font-weight:700; }
+.card .card-text { color: #666; }
+
+/* buttons inside cards: modern neutral gray */
+.btn-add-cart {
+  background: #6c6f73; /* neutral dark gray */
+  border-color: #5d6064;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.btn-add-cart:hover { background:#5a5d60; border-color:#4e5053; }
+
+.btn-toggle-fav {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  color: #6c6f73; /* neutral gray heart */
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.btn-toggle-fav:hover { background:#fafafa; }
+
+/* subtle outline for cards to improve separation */
+.card { box-shadow: 0 0 0 1px rgba(0,0,0,0.02); }
+
+/* recommendations box styling */
+.recommendations { background:#fafafa; border:1px solid #ececec; }
+.recommendations .rec-card { border:1px solid #eee; }
+
+/* price styling: muted dark instead of red */
+.card .text-danger { color: #b02e2e !important; }
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -19,6 +106,20 @@ html {
 
 body {
   margin-bottom: 60px;
+}
+
+.fav-link {
+  background: none;
+  border: none;
+  color: #d63339;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fav-link:hover {
+  opacity: .85;
+}
 }
 
 .auth-overlay {

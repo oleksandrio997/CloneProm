@@ -5,25 +5,25 @@
 }
 
 <div class="row mb-4">
-    <div class="col-12 bg-primary text-white p-5 rounded text-center">
-        <h1>KRAM Marketplace</h1>
-        <p>Buy from trusted sellers</p>
-        <a asp-controller="Product"
-           asp-action="Catalog"
-           class="btn btn-light btn-lg mt-3">
-            All products
-        </a>
+    <div class="col-12 text-center hero-hero p-5 rounded">
+        <h1>Welcome to Kram Marketplace</h1>
+        <p>Discover products from trusted sellers</p>
+        <a class="btn btn-outline-secondary btn-lg mt-3" asp-controller="Home" asp-action="Index">Shop Now</a>
     </div>
 </div>
+
+<!-- hero area removed (reverted to simpler layout) -->
 
 <div class="row">
     <!-- Categories -->
     <div class="col-md-3">
         <h5>Categories</h5>
-        <div class="list-group">
+        <div class="list-group mb-4">
+            <a class="list-group-item list-group-item-action @(Model.SelectedCategoryId == null ? "active" : "")" href="@Url.Action("Index", "Home")">All</a>
             @foreach (var category in Model.Categories)
             {
-                <a class="list-group-item list-group-item-action">
+                var isActive = Model.SelectedCategoryId.HasValue && Model.SelectedCategoryId.Value == category.Id ? "active" : "";
+                <a class="list-group-item list-group-item-action @isActive" href="@Url.Action("Index", "Home", new { category = category.Id })">
                     @category.Name
                 </a>
             }
@@ -32,34 +32,83 @@
 
     <!-- Products -->
     <div class="col-md-9">
+        <!-- recommendations row -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <h5>Recommended for you</h5>
+                <div class="recommendations p-3 rounded">
+                    <div class="row">
+                        @foreach(var rec in Model.RecommendedProducts)
+                        {
+                            <div class="col-6 col-sm-4 col-md-2 mb-3">
+                                <div class="card h-100 shadow-sm rec-card">
+                                    <img src="@(string.IsNullOrEmpty(rec.ImagePath) ? "https://via.placeholder.com/300x200" : rec.ImagePath)" class="card-img-top" alt="@rec.Name" style="height:120px;object-fit:cover;" />
+                                    <div class="card-body d-flex flex-column p-2">
+                                        <div class="small fw-bold mb-1">@rec.Name</div>
+                                        <div class="small text-muted mb-2">@rec.Description</div>
+                                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                                            <strong class="text-danger">@rec.Price.ToString("C")</strong>
+                                            <div class="d-flex gap-2">
+                                                <form asp-controller="Favorites" asp-action="ToggleFavorite" method="post" class="d-inline-block ajax-fav-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="productId" value="@rec.Id" />
+                                                    <button type="submit" class="btn btn-outline-secondary btn-sm btn-toggle-fav">❤</button>
+                                                </form>
+                                                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline-block ajax-cart-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="productId" value="@rec.Id" />
+                                                    <button type="submit" class="btn btn-add-cart btn-sm">Купить</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
-            @foreach (var product in Model.Products)
+            @if (Model.Products != null && Model.Products.Any())
             {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="@(!string.IsNullOrEmpty(product.ImagePath)
-                                                         ? product.ImagePath
-                                                         : "https://via.placeholder.com/300x200")"
-                         class="card-img-top" />
-
-                        <div class="card-body">
-                            <h6>@product.Name</h6>
-                            <span class="fw-bold text-danger">
-                                @product.Price.ToString("₴0.00")
-                            </span>
-                        </div>
-
-                        <div class="card-footer bg-white border-0">
-                            <a asp-controller="Product"
-                               asp-action="Details"
-                               asp-route-id="@product.Id"
-                               class="btn btn-primary w-100">
-                                View
-                            </a>
+                @foreach (var product in Model.Products)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <img src="@(string.IsNullOrEmpty(product.ImagePath) ? "https://via.placeholder.com/300x200" : product.ImagePath)" class="card-img-top" alt="@product.Name" style="height:200px;object-fit:cover;" />
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text text-muted small">@product.Description</p>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong class="text-danger">@product.Price.ToString("C")</strong>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <form asp-controller="Favorites" asp-action="ToggleFavorite" method="post" class="d-inline-block ajax-fav-form">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="productId" value="@product.Id" />
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm btn-toggle-fav">❤</button>
+                                        </form>
+                                        <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline-block ajax-cart-form">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="productId" value="@product.Id" />
+                                            <button type="submit" class="btn btn-primary btn-sm btn-add-cart">Купить</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="alert alert-info">No products found.</div>
                 </div>
                         }
         </div>
     </div>
 </div>
+
