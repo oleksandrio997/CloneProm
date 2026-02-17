@@ -10,47 +10,29 @@
     <link rel="stylesheet" href="~/CloneProm.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand fw-bold text-primary"
-                   asp-controller="Home" asp-action="Index">KRAM</a>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container d-flex align-items-center">
+                <div class="header-left d-flex align-items-center me-3">
+                    <a class="navbar-brand site-brand fw-bold text-dark mb-0"
+                       asp-controller="Home" asp-action="Index">kram</a>
+                </div>
 
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="mainNavbar">
-
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active"
-                               asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Cart"
-                               asp-action="Index">Cart</a>
-                        </li>
-                    </ul>
-
-                    <form class="d-flex me-3">
-                        <input class="form-control me-2"
-                               type="search"
-                               placeholder="Search products..." />
-                        <button class="btn btn-outline-primary">
-                            Search
-                        </button>
+                <div class="header-center flex-fill d-flex justify-content-center">
+                    <form class="search-form w-75" asp-controller="Home" asp-action="Index" method="get">
+                        <div class="input-group">
+                            <input id="searchInput" name="q" value="@(ViewContext.HttpContext.Request.Query["q"].ToString() ?? "")" class="form-control search-input" type="search" placeholder="Я шукаю..." aria-label="Search">
+                            <button class="btn btn-search" type="submit">Знайти</button>
+                        </div>
                     </form>
+                </div>
 
-					@await Html.PartialAsync("_LoginPartial")
-                    
+                <div class="header-right d-flex align-items-center ms-3">
+                    <ul class="nav-icons list-unstyled d-flex mb-0 align-items-center gap-3">
+                        <li><a class="icon-link" asp-area="Identity" asp-page="/Account/Login">Кабінет</a></li>
+                        <li><a class="icon-link" asp-controller="Favorites" asp-action="Index">Бажане</a></li>
+                        <li><a class="icon-link" asp-controller="Cart" asp-action="Index">Кошик</a></li>
+                    </ul>
                 </div>
             </div>
         </nav>
@@ -69,7 +51,56 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+            $(function(){
+                // Ajax submit for cart / favorites forms
+                $(document).on('submit', '.ajax-cart-form', function(e){
+                    e.preventDefault();
+                    var $form = $(this);
+                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    console.log('POST', $form.attr('action'), $form.serialize());
+                    $.ajax({
+                        url: $form.attr('action'),
+                        method: 'POST',
+                        data: $form.serialize(),
+                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .done(function(){
+                        // simple feedback
+                        $form.find('button').text('Добавлено').prop('disabled', true);
+                        setTimeout(function(){ $form.find('button').text('Купить').prop('disabled', false); }, 1500);
+                    })
+                    .fail(function(xhr, status, err){
+                        console.error('Cart AJAX error', status, err, xhr.responseText);
+                        alert('Ошибка при добавлении в корзину: ' + (xhr.responseText || status));
+                    });
+                    return false;
+                });
 
+                $(document).on('submit', '.ajax-fav-form', function(e){
+                    e.preventDefault();
+                    var $form = $(this);
+                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                    console.log('POST', $form.attr('action'), $form.serialize());
+                    $.ajax({
+                        url: $form.attr('action'),
+                        method: 'POST',
+                        data: $form.serialize(),
+                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                    }).done(function(res){
+                        if(res && res.added){
+                            $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
+                        } else {
+                            $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
+                        }
+                    }).fail(function(xhr, status, err){
+                        console.error('Fav AJAX error', status, err, xhr.responseText);
+                        alert('Ошибка при добавлении в избранное: ' + (xhr.responseText || status));
+                    });
+                    return false;
+                });
+            });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
