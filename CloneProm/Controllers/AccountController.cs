@@ -1,4 +1,5 @@
-﻿using CloneProm.Models;
+﻿using CloneProm.Data;
+using CloneProm.Models;
 using CloneProm.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +10,16 @@ namespace CloneProm.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ClonePromDbContext _context;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            ClonePromDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         // REGISTER
@@ -43,7 +47,6 @@ namespace CloneProm.Controllers
             {
                 await _userManager.AddToRoleAsync(user, "User");
                 await _signInManager.SignInAsync(user, false);
-
                 return RedirectToAction("Index", "Home");
             }
 
@@ -52,7 +55,6 @@ namespace CloneProm.Controllers
 
             return View(model);
         }
-
 
         // LOGIN
         [HttpGet]
@@ -85,6 +87,38 @@ namespace CloneProm.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        // BECOME SELLER
+        [HttpGet]
+        public IActionResult BecomeSeller()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> BecomeSeller(string shopName, string description)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            if (await _userManager.IsInRoleAsync(user, "Seller"))
+                return RedirectToAction("Index", "Home");
+
+            await _userManager.AddToRoleAsync(user, "Seller");
+
+            var seller = new Seller
+            {
+                UserId = user.Id,
+                ShopName = shopName,
+                Description = description
+            };
+
+            _context.Sellers.Add(seller);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index", "Home");
         }
     }

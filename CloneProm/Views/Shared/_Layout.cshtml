@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CloneProm.styles.css" asp-append-version="true" />
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
     <header class="site-header">
@@ -29,7 +32,55 @@
 
                 <div class="header-right d-flex align-items-center ms-3">
                     <ul class="nav-icons list-unstyled d-flex mb-0 align-items-center gap-3">
-                        <li><a class="icon-link" asp-area="Identity" asp-page="/Account/Login">Кабінет</a></li>
+                        @using Microsoft.AspNetCore.Identity
+                        @using CloneProm.Models
+                        @inject SignInManager<ApplicationUser> SignInManager
+                        @inject UserManager<ApplicationUser> UserManager
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                                    Hello, @User.Identity?.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (User.IsInRole("Seller") || User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Product"
+                                               asp-action="Create">Add Product</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Product"
+                                               asp-action="Index">My Products</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Account"
+                                               asp-action="BecomeSeller">Become a Seller</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li><a class="icon-link" href="#" onclick="openLogin()">Login</a></li>
+                            <li><a class="icon-link" href="#" onclick="openRegister()">Register</a></li>
+                        }
+
                         <li><a class="icon-link" asp-controller="Favorites" asp-action="Index">Бажане</a></li>
                         <li><a class="icon-link" asp-controller="Cart" asp-action="Index">Кошик</a></li>
                     </ul>
@@ -48,59 +99,127 @@
         </div>
     </footer>
 
+    <!-- ================= SCRIPTS ================= -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-            $(function(){
-                // Ajax submit for cart / favorites forms
-                $(document).on('submit', '.ajax-cart-form', function(e){
-                    e.preventDefault();
-                    var $form = $(this);
-                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
-                    console.log('POST', $form.attr('action'), $form.serialize());
-                    $.ajax({
-                        url: $form.attr('action'),
-                        method: 'POST',
-                        data: $form.serialize(),
-                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .done(function(){
-                        // simple feedback
-                        $form.find('button').text('Добавлено').prop('disabled', true);
-                        setTimeout(function(){ $form.find('button').text('Купить').prop('disabled', false); }, 1500);
-                    })
-                    .fail(function(xhr, status, err){
-                        console.error('Cart AJAX error', status, err, xhr.responseText);
-                        alert('Ошибка при добавлении в корзину: ' + (xhr.responseText || status));
-                    });
-                    return false;
-                });
+    @await RenderSectionAsync("Scripts", required: false)
 
-                $(document).on('submit', '.ajax-fav-form', function(e){
-                    e.preventDefault();
-                    var $form = $(this);
-                    var token = $form.find('input[name="__RequestVerificationToken"]').val();
-                    console.log('POST', $form.attr('action'), $form.serialize());
-                    $.ajax({
-                        url: $form.attr('action'),
-                        method: 'POST',
-                        data: $form.serialize(),
-                        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
-                    }).done(function(res){
-                        if(res && res.added){
-                            $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
-                        } else {
-                            $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
-                        }
-                    }).fail(function(xhr, status, err){
-                        console.error('Fav AJAX error', status, err, xhr.responseText);
-                        alert('Ошибка при добавлении в избранное: ' + (xhr.responseText || status));
-                    });
-                    return false;
+    <script>
+        $(function(){
+            // Ajax submit for cart / favorites forms
+            $(document).on('submit', '.ajax-cart-form', function(e){
+                e.preventDefault();
+                var $form = $(this);
+                var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    url: $form.attr('action'),
+                    method: 'POST',
+                    data: $form.serialize(),
+                    headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .done(function(){
+                    $form.find('button').text('Додано').prop('disabled', true);
+                    setTimeout(function(){ $form.find('button').text('Купити').prop('disabled', false); }, 1500);
+                })
+                .fail(function(xhr, status, err){
+                    alert('Помилка при додаванні до кошика: ' + (xhr.responseText || status));
                 });
             });
+
+            $(document).on('submit', '.ajax-fav-form', function(e){
+                e.preventDefault();
+                var $form = $(this);
+                var token = $form.find('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    url: $form.attr('action'),
+                    method: 'POST',
+                    data: $form.serialize(),
+                    headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
+                }).done(function(res){
+                    if(res && res.added){
+                        $form.find('button').addClass('btn-danger').removeClass('btn-outline-secondary');
+                    } else {
+                        $form.find('button').addClass('btn-outline-secondary').removeClass('btn-danger');
+                    }
+                }).fail(function(xhr, status, err){
+                    alert('Помилка при додаванні до бажаного: ' + (xhr.responseText || status));
+                });
+            });
+        });
+
+        // Sidebar login/register
+        function openLogin() {
+            document.getElementById("authSidebar").classList.add("active");
+            document.getElementById("authOverlay").classList.remove("d-none");
+            showLogin();
+        }
+
+        function openRegister() {
+            document.getElementById("authSidebar").classList.add("active");
+            document.getElementById("authOverlay").classList.remove("d-none");
+            showRegister();
+        }
+
+        function closeAuth() {
+            document.getElementById("authSidebar").classList.remove("active");
+            document.getElementById("authOverlay").classList.add("d-none");
+        }
+
+        function showRegister() {
+            document.getElementById("loginForm").classList.add("d-none");
+            document.getElementById("registerForm").classList.remove("d-none");
+            document.getElementById("authTitle").innerText = "Register";
+        }
+
+        function showLogin() {
+            document.getElementById("registerForm").classList.add("d-none");
+            document.getElementById("loginForm").classList.remove("d-none");
+            document.getElementById("authTitle").innerText = "Login";
+        }
     </script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- ================= AUTH SIDEBAR ================= -->
+    <div id="authOverlay" class="auth-overlay d-none"></div>
+    <div id="authSidebar" class="auth-sidebar">
+        <div class="auth-header">
+            <h5 id="authTitle">Login</h5>
+            <button type="button" class="auth-close" onclick="closeAuth()">×</button>
+        </div>
+        <div class="auth-body">
+            <div id="loginForm">
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    <label>Email</label>
+                    <input name="Email" type="email" class="auth-input" required />
+                    <label>Password</label>
+                    <input name="Password" type="password" class="auth-input" required />
+                    <button type="submit" class="auth-btn">Login</button>
+                    <div class="auth-footer">
+                        Don't have an account?
+                        <a href="#" onclick="showRegister()">Register</a>
+                    </div>
+                </form>
+            </div>
+
+            <div id="registerForm" class="d-none">
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    <label>Email</label>
+                    <input name="Email" type="email" class="auth-input" required />
+                    <label>Full Name</label>
+                    <input name="FullName" class="auth-input" required />
+                    <label>Password</label>
+                    <input name="Password" type="password" class="auth-input" required />
+                    <label>Confirm Password</label>
+                    <input name="ConfirmPassword" type="password" class="auth-input" required />
+                    <button type="submit" class="auth-btn">Register</button>
+                    <div class="auth-footer">
+                        Already have an account?
+                        <a href="#" onclick="showLogin()">Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
