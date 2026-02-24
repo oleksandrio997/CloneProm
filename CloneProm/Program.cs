@@ -49,7 +49,6 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // InitializeAdminAsync sets up roles and an admin user.
-        await scope.ServiceProvider.InitializeAdminAsync();
     }
     catch (Exception ex)
     {

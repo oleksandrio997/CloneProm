@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloneProm.Migrations
 {
     [DbContext(typeof(ClonePromDbContext))]
-    [Migration("20260120153158_Login")]
-    partial class Login
+    [Migration("20260224165301_RemoveIsApproved")]
+    partial class RemoveIsApproved
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,9 +198,6 @@ namespace CloneProm.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -285,7 +282,8 @@ namespace CloneProm.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Sellers");
                 });
@@ -504,8 +502,8 @@ namespace CloneProm.Migrations
             modelBuilder.Entity("CloneProm.Models.Seller", b =>
                 {
                     b.HasOne("CloneProm.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("Seller")
+                        .HasForeignKey("CloneProm.Models.Seller", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -560,6 +558,12 @@ namespace CloneProm.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CloneProm.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Seller")
                         .IsRequired();
                 });
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CloneProm.Migrations
 {
     /// <inheritdoc />
-    public partial class Login : Migration
+    public partial class RemoveIsApproved : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -235,7 +235,6 @@ namespace CloneProm.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     SellerId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -392,7 +391,8 @@ namespace CloneProm.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Sellers_UserId",
                 table: "Sellers",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
         }
 
         /// <inheritdoc />

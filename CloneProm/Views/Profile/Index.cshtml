@@ -1,0 +1,122 @@
+﻿@model CloneProm.Models.ApplicationUser
+
+@{
+    bool isSeller = ViewBag.IsSeller ?? false;
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+    string activeTab = ViewBag.ActiveTab ?? "dashboard";
+    var favorites = ViewBag.Favorites as List<CloneProm.Models.Product>;
+    var products = ViewBag.Products as List<CloneProm.Models.Product>;
+}
+
+<div class="account-wrapper">
+
+    <div class="account-sidebar">
+        <div class="account-user">
+            <div class="account-avatar"><i class="bi bi-person"></i></div>
+            <div>
+                <div class="fw-bold">@Model.UserName</div>
+                <div class="text-muted small">@Model.Email</div>
+            </div>
+        </div>
+
+        <ul class="account-menu">
+            <li>
+                <a asp-action="Index" asp-route-tab="dashboard"
+                   class="@(activeTab == "dashboard" ? "active" : "")">Мій кабінет</a>
+            </li>
+            <li>
+                <a asp-action="Index" asp-route-tab="orders"
+                   class="@(activeTab == "orders" ? "active" : "")">Мої замовлення</a>
+            </li>
+            <li>
+                <a asp-action="Index" asp-route-tab="favorites"
+                   class="@(activeTab == "favorites" ? "active" : "")">Бажане</a>
+            </li>
+
+            @if (isSeller || isAdmin)
+            {
+                <li><a asp-controller="Product" asp-action="Index">Мої товари</a></li>
+                <li><a asp-controller="Product" asp-action="Create">Додати товар</a></li>
+            }
+            else
+            {
+                <li><a asp-controller="Account" asp-action="BecomeSeller">Стати продавцем</a></li>
+            }
+        </ul>
+
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            <button class="logout-btn">Вийти</button>
+        </form>
+    </div>
+
+    <div class="account-content">
+        @if (activeTab == "dashboard")
+        {
+            <h4>Мій кабінет</h4>
+            <p>Вітаємо 👋</p>
+
+            @if (products != null && products.Any())
+            {
+                <h5>Ваші товари:</h5>
+                <div class="row">
+                    @foreach (var p in products)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <img src="@p.ImagePath" class="card-img-top" style="height:200px; object-fit:cover;" />
+                                <div class="card-body d-flex flex-column">
+                                    <h5>@p.Name</h5>
+                                    <p class="text-danger fw-bold">@p.Price.ToString("C")</p>
+                                    <a class="btn btn-primary mt-auto"
+                                       asp-controller="Product"
+                                       asp-action="Details"
+                                       asp-route-id="@p.Id">Переглянути</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>У вас ще немає товарів</p>
+            }
+        }
+
+        @if (activeTab == "orders")
+        {
+            <h4>Мої замовлення</h4>
+            <p>Тут будуть замовлення</p>
+        }
+
+        @if (activeTab == "favorites")
+        {
+            <h4>Бажане</h4>
+            @if (favorites == null || !favorites.Any())
+            {
+                <p>У вас ще немає улюблених товарів</p>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var p in favorites)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <img src="@p.ImagePath" class="card-img-top" style="height:200px; object-fit:cover;" />
+                                <div class="card-body d-flex flex-column">
+                                    <h5>@p.Name</h5>
+                                    <p class="text-danger fw-bold">@p.Price.ToString("C")</p>
+                                    <a class="btn btn-primary mt-auto"
+                                       asp-controller="Product"
+                                       asp-action="Details"
+                                       asp-route-id="@p.Id">Переглянути</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
