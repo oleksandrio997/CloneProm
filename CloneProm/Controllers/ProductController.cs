@@ -12,13 +12,14 @@ namespace CloneProm.Controllers
     public class ProductController : Controller
     {
         private readonly ClonePromDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ProductController(ClonePromDbContext context)
+        public ProductController(ClonePromDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
-        // READ (list)
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
@@ -29,7 +30,6 @@ namespace CloneProm.Controllers
             return View(products);
         }
 
-        // READ (details)
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
@@ -44,40 +44,50 @@ namespace CloneProm.Controllers
             return View(product);
         }
 
-        // CREATE (GET)
         [Authorize(Roles = "Seller,Admin")]
         public IActionResult Create()
         {
-            ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name");
+            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
             return View();
         }
 
-        // CREATE (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Seller,Admin")]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name");
+                ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
                 return View(product);
             }
 
-            // Поточний користувач
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Якщо користувач не Admin, призначаємо SellerId
             if (!User.IsInRole("Admin"))
             {
                 var seller = await _context.Sellers.FirstOrDefaultAsync(s => s.UserId == userId);
                 if (seller == null)
                 {
                     ModelState.AddModelError("", "You are not registered as a seller.");
-                    ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name");
+                    ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
                     return View(product);
                 }
                 product.SellerId = seller.Id;
+            }
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = Guid.NewGuid() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await imageFile.CopyToAsync(stream);
+
+                product.ImagePath = "/uploads/" + fileName;
             }
 
             product.CreatedAt = DateTime.Now;
@@ -88,36 +98,31 @@ namespace CloneProm.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // EDIT (GET)
         [Authorize(Roles = "Seller,Admin")]
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Seller)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null)
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!User.IsInRole("Admin") && product.Seller.UserId != userId)
+            if (!User.IsInRole("Admin") && product.Seller?.UserId != userId)
                 return Forbid();
 
-            ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name", product.CategoryId);
+            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             return View(product);
         }
 
-        // EDIT (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Seller,Admin")]
-        public async Task<IActionResult> Edit(int id, Product product)
+        public async Task<IActionResult> Edit(int id, Product product, IFormFile? imageFile)
         {
             if (id != product.Id)
                 return BadRequest();
-
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name", product.CategoryId);
-                return View(product);
-            }
 
             var existingProduct = await _context.Products
                 .Include(p => p.Seller)
@@ -127,28 +132,38 @@ namespace CloneProm.Controllers
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!User.IsInRole("Admin") && existingProduct.Seller.UserId != userId)
+            if (!User.IsInRole("Admin") && existingProduct.Seller?.UserId != userId)
                 return Forbid();
 
-            // Оновлюємо поля
             existingProduct.Name = product.Name;
             existingProduct.Description = product.Description;
             existingProduct.Price = product.Price;
             existingProduct.Discount = product.Discount;
             existingProduct.Quantity = product.Quantity;
             existingProduct.CategoryId = product.CategoryId;
-            existingProduct.IsApproved = product.IsApproved;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = Guid.NewGuid() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await imageFile.CopyToAsync(stream);
+
+                existingProduct.ImagePath = "/uploads/" + fileName;
+            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        // DELETE (GET)
         [Authorize(Roles = "Seller,Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _context.Products
-                .Include(p => p.Category)
                 .Include(p => p.Seller)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -156,41 +171,13 @@ namespace CloneProm.Controllers
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!User.IsInRole("Admin") && product.Seller.UserId != userId)
+            if (!User.IsInRole("Admin") && product.Seller?.UserId != userId)
                 return Forbid();
 
-            return View(product);
-        }
-
-        // DELETE (POST)
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Seller,Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (!User.IsInRole("Admin") && product.Seller.UserId != userId)
-                    return Forbid();
-
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-            }
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
-        }
-
-        // CATALOG (all products)
-        [AllowAnonymous]
-        public async Task<IActionResult> Catalog()
-        {
-            var products = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Seller)
-                .ToListAsync();
-            return View(products);
         }
     }
 }

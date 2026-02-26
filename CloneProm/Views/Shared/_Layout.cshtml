@@ -39,49 +39,26 @@
 
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
-                                    Hello, @User.Identity?.Name
+                            <li>
+                                <a class="icon-link"
+                                   asp-controller="Profile"
+                                   asp-action="Index">
+                                    <i class="bi bi-person"></i>
+                                    Кабінет
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    @if (User.IsInRole("Seller") || User.IsInRole("Admin"))
-                                    {
-                                        <li>
-                                            <a class="dropdown-item"
-                                               asp-controller="Product"
-                                               asp-action="Create">Add Product</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item"
-                                               asp-controller="Product"
-                                               asp-action="Index">My Products</a>
-                                        </li>
-                                        <li><hr class="dropdown-divider" /></li>
-                                    }
-                                    else
-                                    {
-                                        <li>
-                                            <a class="dropdown-item"
-                                               asp-controller="Account"
-                                               asp-action="BecomeSeller">Become a Seller</a>
-                                        </li>
-                                        <li><hr class="dropdown-divider" /></li>
-                                    }
-                                    <li>
-                                        <form asp-controller="Account" asp-action="Logout" method="post">
-                                            <button type="submit" class="dropdown-item text-danger">Logout</button>
-                                        </form>
-                                    </li>
-                                </ul>
                             </li>
                         }
                         else
                         {
-                            <li><a class="icon-link" href="#" onclick="openLogin()">Login</a></li>
-                            <li><a class="icon-link" href="#" onclick="openRegister()">Register</a></li>
+                            <li>
+                                <a class="icon-link" href="#" onclick="openLogin()">Login</a>
+                            </li>
+                            <li>
+                                <a class="icon-link" href="#" onclick="openRegister()">Register</a>
+                            </li>
                         }
 
-                        <li><a class="icon-link" asp-controller="Favorites" asp-action="Index">Бажане</a></li>
+                        <li><a class="icon-link"asp-controller="Profile"asp-action="Index"asp-route-tab="favorites">Бажане</a></li>
                         <li><a class="icon-link" asp-controller="Cart" asp-action="Index">Кошик</a></li>
                     </ul>
                 </div>

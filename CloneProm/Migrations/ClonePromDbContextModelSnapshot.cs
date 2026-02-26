@@ -109,7 +109,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("CloneProm.Models.Order", b =>
@@ -138,7 +138,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("CloneProm.Models.OrderItem", b =>
@@ -167,7 +167,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("CloneProm.Models.Product", b =>
@@ -195,9 +195,6 @@ namespace CloneProm.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -217,7 +214,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("CloneProm.Models.Review", b =>
@@ -251,7 +248,7 @@ namespace CloneProm.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("CloneProm.Models.Seller", b =>
@@ -282,9 +279,10 @@ namespace CloneProm.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
-                    b.ToTable("Sellers", (string)null);
+                    b.ToTable("Sellers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -501,8 +499,8 @@ namespace CloneProm.Migrations
             modelBuilder.Entity("CloneProm.Models.Seller", b =>
                 {
                     b.HasOne("CloneProm.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("Seller")
+                        .HasForeignKey("CloneProm.Models.Seller", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -557,6 +555,12 @@ namespace CloneProm.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CloneProm.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Seller")
                         .IsRequired();
                 });
 
