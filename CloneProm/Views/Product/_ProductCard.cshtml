@@ -1,0 +1,316 @@
+﻿@model CloneProm.Models.Product
+
+<div class="prom-card">
+    <div class="prom-card-image">
+        <a asp-controller="Product" asp-action="Details" asp-route-id="@Model.Id">
+            <img src="@Model.ImagePath" alt="@Model.Name" />
+        </a>
+
+        <!-- FAVORITES -->
+        <form asp-controller="Favorites"
+              asp-action="ToggleFavorite"
+              method="post"
+              class="wishlist-form"
+              onsubmit="return false;" data-id="@Model.Id">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.Id" />
+
+            <button type="submit" class="wishlist-btn">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="prom-card-body">
+
+        <a asp-controller="Product"
+           asp-action="Details"
+           asp-route-id="@Model.Id"
+           class="prom-title">
+            @Model.Name
+        </a>
+
+        <!-- RATING -->
+        <div class="prom-rating">
+            @for (int i = 1; i <= 5; i++)
+            {
+                if (i <= Math.Floor(Model.Rating))
+                {
+                    <i class="fa-solid fa-star star filled"></i>
+                }
+                else
+                {
+                    <i class="fa-regular fa-star star"></i>
+                }
+            }
+            <span class="reviews">(@Model.ReviewsCount)</span>
+        </div>
+
+        <div class="prom-price-row">
+            <div class="prom-price">
+                @if (Model.Discount > 0)
+                {
+                    <div class="old-price">
+                        @Model.Price.ToString("N2") грн
+                    </div>
+                    <div class="new-price">
+                        @((Model.Price - (Model.Price * Model.Discount / 100)).ToString("N2")) грн
+                    </div>
+                }
+                else
+                {
+                    <div class="new-price">
+                        @Model.Price.ToString("N2") грн
+                    </div>
+                }
+            </div>
+
+            <!-- CART -->
+            <form asp-controller="Cart"
+                  asp-action="AddToCart"
+                  method="post"
+                  class="cart-form"
+                  onsubmit="return false;" data-id="@Model.Id">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="quantity" value="1" />
+
+                <button type="submit"
+                        class="cart-btn"
+                        @(Model.Quantity == 0 ? "disabled" : "")>
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </button>
+            </form>
+
+        </div>
+
+        <div class="prom-availability">
+            @if (Model.Quantity > 0)
+            {
+                <span class="in-stock">В наявності</span>
+            }
+            else
+            {
+                <span class="out-stock">Немає в наявності</span>
+            }
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    // CART
+    document.querySelectorAll(".cart-form").forEach(form => {
+        form.addEventListener("submit", function () {
+            const id = this.dataset.id;
+
+            fetch("/Cart/AddToCart", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-Requested-With": "XMLHttpRequest",
+                    "RequestVerificationToken": token
+                },
+                body: `productId=${id}&quantity=1`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    this.querySelector("button").style.background = "cornflowerblue";
+                    this.querySelector("button").style.color = "#fff";
+                }
+            });
+        });
+    });
+
+    // FAVORITES
+    document.querySelectorAll(".wishlist-form").forEach(form => {
+        form.addEventListener("submit", function () {
+            const id = this.dataset.id;
+
+            fetch("/Favorites/ToggleFavorite", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-Requested-With": "XMLHttpRequest",
+                    "RequestVerificationToken": token
+                },
+                body: `productId=${id}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    const icon = this.querySelector("i");
+                    if(data.added) {
+                        icon.classList.remove("fa-regular");
+                        icon.classList.add("fa-solid");
+                        this.querySelector("button").style.color = "red";
+                    } else {
+                        icon.classList.remove("fa-solid");
+                        icon.classList.add("fa-regular");
+                        this.querySelector("button").style.color = "";
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .prom-card {
+        width: 220px;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: .2s ease;
+        font-family: Arial, sans-serif;
+    }
+
+        .prom-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+    .prom-card-image {
+        position: relative;
+        height: 200px; /* трохи менше */
+        background: #fff; /* без сірого */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px; /* важливо */
+    }
+
+        .prom-card-image img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto; /* НЕ 100% */
+            height: auto; /* НЕ 100% */
+            object-fit: contain;
+        }
+
+    .wishlist-form {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        margin: 0;
+    }
+
+    .wishlist-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid #ddd;
+        background: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .wishlist-btn:hover {
+            background: #e53935;
+            color: #fff;
+        }
+
+    .prom-card-body {
+        padding: 10px;
+    }
+
+    .prom-title {
+        font-size: 13px;
+        color: #333;
+        text-decoration: none;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 36px;
+    }
+
+        .prom-title:hover {
+            color: #ff6a00;
+        }
+
+    .prom-rating {
+        margin-top: 4px;
+        font-size: 12px;
+    }
+
+    .star {
+        color: #ccc;
+        font-size: 13px;
+    }
+
+        .star.filled {
+            color: #ff9900;
+        }
+
+    .reviews {
+        color: #888;
+        margin-left: 4px;
+        font-size: 11px;
+    }
+
+    .prom-price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 6px;
+    }
+
+    .old-price {
+        text-decoration: line-through;
+        font-size: 12px;
+        color: #999;
+    }
+
+    .new-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111;
+    }
+
+    .cart-form {
+        margin: 0;
+    }
+
+    .prom-availability {
+        margin-top: 4px;
+        font-size: 12px;
+    }
+
+    .in-stock {
+        color: cornflowerblue;
+    }
+
+    .out-stock {
+        color: #e53935;
+    }
+
+    .cart-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 20px;
+        border: 1px solid cornflowerblue;
+        background: #fff;
+        color: cornflowerblue;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .cart-btn:hover {
+            background: cornflowerblue;
+            color: #fff;
+        }
+
+        .cart-btn:disabled {
+            border: 1px solid #ccc;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+</style>

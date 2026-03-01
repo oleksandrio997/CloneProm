@@ -23,5 +23,8 @@
 
         public int SellerId { get; set; }
         public Seller? Seller { get; set; }
+
+        public double Rating { get; set; } = 0;         // від 0 до 5
+        public int ReviewsCount { get; set; } = 0;
     }
 }

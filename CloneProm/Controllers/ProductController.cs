@@ -34,12 +34,41 @@ namespace CloneProm.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var product = await _context.Products
-                .Include(p => p.Category)
                 .Include(p => p.Seller)
+                .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
                 return NotFound();
+
+            // ================= VIEWED SESSION =================
+            var viewed = HttpContext.Session.GetString("ViewedProducts");
+            var list = string.IsNullOrEmpty(viewed)
+                ? new List<int>()
+                : viewed.Split(',').Select(int.Parse).ToList();
+
+            list.Remove(id);
+            list.Insert(0, id);
+
+            if (list.Count > 5)
+                list = list.Take(5).ToList();
+
+            HttpContext.Session.SetString("ViewedProducts", string.Join(",", list));
+
+            // ================= SIMILAR (ПО CategoryId !!!) =================
+            var similarProducts = await _context.Products
+                .Include(p => p.Seller)
+                .Where(p => p.CategoryId == product.CategoryId && p.Id != id)
+                .Take(6)
+                .ToListAsync();
+
+            // ================= VIEWED PRODUCTS =================
+            var viewedProducts = await _context.Products
+                .Where(p => list.Contains(p.Id) && p.Id != id)
+                .ToListAsync();
+
+            ViewBag.Similar = similarProducts;
+            ViewBag.Viewed = viewedProducts;
 
             return View(product);
         }
