@@ -26,6 +26,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
+builder.Services.AddSession();
+
 // Add session support for cart and favorites (session-based storage)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -75,6 +77,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
 
 // Session must be enabled after routing and before endpoints so it's available in controllers
 app.UseSession();

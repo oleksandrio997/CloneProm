@@ -4,6 +4,7 @@ using CloneProm.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloneProm.Migrations
 {
     [DbContext(typeof(ClonePromDbContext))]
-    partial class ClonePromDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260228175019_AddRatingAndReviewsToProduct")]
+    partial class AddRatingAndReviewsToProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
