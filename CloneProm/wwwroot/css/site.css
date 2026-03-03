@@ -1,5 +1,7 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
+    height: 100%;
+    margin: 0;
 }
 
 /* layout for new hero area */
@@ -591,4 +593,49 @@ body {
 .category-item:hover .category-icon {
     color: #000;
     transform: scale(1.1);
+}
+.kram-footer {
+    background-color: #f5f5f5;
+    font-size: 14px;
+}
+
+.footer-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+    .footer-links li {
+        margin-bottom: 8px;
+    }
+
+    .footer-links a {
+        text-decoration: none;
+        color: #555;
+    }
+
+        .footer-links a:hover {
+            color: #000;
+        }
+
+.social-icons i,
+.payments i {
+    font-size: 18px;
+    cursor: pointer;
+    color: #444;
+}
+
+    .social-icons i:hover,
+    .payments i:hover {
+        color: #000;
+    }
+
+.footer-bottom {
+    border-top: 1px solid #ddd;
+    font-size: 13px;
+    color: #777;
 }
