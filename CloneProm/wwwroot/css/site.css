@@ -512,4 +512,83 @@ body {
     border-radius: 15px;
 }
 
+/* POPULAR CATEGORIES */
 
+.popular-categories-section {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.popular-categories-wrapper {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+    .popular-categories-wrapper::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .popular-categories-wrapper::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+
+.popular-category-item {
+    min-width: 140px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.popular-category-img {
+    height: 100px;
+    background: #e0e0e0;
+    border-radius: 15px;
+    margin-bottom: 10px;
+}
+
+.popular-category-item p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* arrows */
+
+.popular-arrows {
+    display: flex;
+    gap: 10px;
+}
+
+.arrow-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .arrow-btn:hover {
+        background: #e9ecef;
+    }
+.category-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.category-icon {
+    font-size: 15px;
+    width: 20px;
+    text-align: center;
+    color: #6c757d;
+    transition: 0.2s;
+}
+
+.category-item:hover .category-icon {
+    color: #000;
+    transform: scale(1.1);
+}

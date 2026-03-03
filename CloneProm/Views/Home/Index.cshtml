@@ -13,7 +13,10 @@
 
             <a class="category-item @(Model.SelectedCategoryId == null ? "active" : "")"
                href="@Url.Action("Index", "Home")">
-                <span>All</span>
+                <span class="category-content">
+                    <i class="fa-solid fa-border-all category-icon"></i>
+                    <span>All</span>
+                </span>
                 <span class="arrow">›</span>
             </a>
 
@@ -25,14 +28,43 @@
 
                 <a class="category-item @isActive"
                    href="@Url.Action("Index", "Home", new { category = category.Id })">
-                    <span>@category.Name</span>
+
+                    <span class="category-content">
+
+                        @if (category.Name.Contains("Elect"))
+                        {
+                            <i class="fa-solid fa-plug category-icon"></i>
+                        }
+                        else if (category.Name.Contains("Home"))
+                        {
+                            <i class="fa-solid fa-house category-icon"></i>
+                        }
+                        else if (category.Name.Contains("Book"))
+                        {
+                            <i class="fa-solid fa-book category-icon"></i>
+                        }
+                        else if (category.Name.Contains("Cloth"))
+                        {
+                            <i class="fa-solid fa-shirt category-icon"></i>
+                        }
+                        else if (category.Name.Contains("Toy"))
+                        {
+                            <i class="fa-solid fa-gamepad category-icon"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-circle category-icon"></i>
+                        }
+
+                        <span>@category.Name</span>
+                    </span>
+
                     <span class="arrow">›</span>
                 </a>
             }
 
         </div>
     </div>
-
     <!-- CENTER BANNER -->
     <div class="center-banner">
         <!-- просто серая зона -->
@@ -59,9 +91,71 @@
     </div>
 
 </div>
+<!-- POPULAR CATEGORIES (HARDCODE VISUAL BLOCK) -->
+<div class="popular-categories-section mt-5 mb-5">
 
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Популярні категорії</h5>
+
+        <div class="popular-arrows">
+            <button class="arrow-btn">‹</button>
+            <button class="arrow-btn">›</button>
+        </div>
+    </div>
+
+    <div class="popular-categories-wrapper">
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Техніка та електроніка</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Взуття та одяг</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Краса та здоров'я</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Біодобавки</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Дім і сад</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Текстиль і одяг</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Товари для дітей</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Парфумерія</p>
+        </div>
+
+        <div class="popular-category-item">
+            <div class="popular-category-img"></div>
+            <p>Матеріали для ремонту</p>
+        </div>
+
+    </div>
+</div>
 
 <!-- PRODUCTS -->
+<h1 class="mb-0">Товари</h1>
+
 <div class="row">
     <div class="col-12">
         <div class="row">
