@@ -62,6 +62,14 @@ namespace CloneProm.Controllers
                 .Take(6)
                 .ToListAsync();
 
+
+            var otherSellers = _context.Products
+                 .Where(p => p.Name == product.Name && p.Id != product.Id)
+                 .Include(p => p.Seller)
+                 .ToList();
+
+            ViewBag.OtherSellers = otherSellers;
+
             // ================= VIEWED PRODUCTS =================
             var viewedProducts = await _context.Products
                 .Where(p => list.Contains(p.Id) && p.Id != id)

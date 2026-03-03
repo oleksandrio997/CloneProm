@@ -38,9 +38,36 @@
 
             <h4 class="fw-bold">@Model.Name</h4>
 
+            @{
+                var rating = Model.Rating;
+                var fullStars = (int)Math.Floor(rating);
+                var hasHalfStar = rating - fullStars >= 0.5;
+                var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            }
+
             <div class="d-flex align-items-center gap-2 mb-2">
-                <div class="rating">★★★★☆</div>
-                <small class="text-muted">4.3 • 16 відгуків</small>
+
+                <div class="text-warning fs-5">
+                    @for (int i = 0; i < fullStars; i++)
+                    {
+                        @:★
+                    }
+
+                    @if (hasHalfStar)
+                    {
+                        @:☆
+                    }
+
+                    @for (int i = 0; i < emptyStars; i++)
+                    {
+                        @:☆
+                    }
+                </div>
+
+                <small class="text-muted">
+                    @rating.ToString("0.0") • @Model.ReviewsCount відгуків
+                </small>
+
             </div>
 
             <!-- Price -->
@@ -107,14 +134,37 @@
             <div class="acc-item border-top">
                 <div class="acc-header" onclick="toggleAccordion(this)">
                     <span class="acc-icon">+</span>
-                    <span class="fw-bold">Характеристики</span>
+                    <span class="fw-bold">Характеристики</span>                   
                 </div>
 
                 <div class="acc-body">
-                    <div class="spec-row">
-                        <div class="spec-name">Назва</div>
-                        <div class="spec-value">@Model.Name</div>
-                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Specifications))
+                    {
+                        var cleanedSpecifications = Model.Specifications
+                        .Replace("+ ", "")
+                        .Replace("\\r\\n", ", ")
+                        .Trim();
+
+                        var specs = cleanedSpecifications.Split(',');
+
+                        foreach (var spec in specs)
+                        {
+                            var parts = spec.Split(':');
+                            if (parts.Length == 2)
+                            {
+                                <div class="spec-row">
+                                    <div class="spec-name">@parts[0].Trim()</div>
+                                    <div class="spec-value">@parts[1].Trim()</div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="spec-row">
+                                    <div class="spec-value">@spec.Trim()</div>
+                                </div>
+                            }
+                        }
+                    }
                 </div>
             </div>
 
@@ -151,26 +201,19 @@
     </div>
 
     <!-- ================= OTHER SELLERS ================= -->
-    <div class="mt-5">
-        <h5>Цей товар у інших продавців</h5>
+    @if (ViewBag.OtherSellers != null && ((List<CloneProm.Models.Product>)ViewBag.OtherSellers).Any())
+    {
+        <div class="mt-5">
+            <h5>Цей товар у інших продавців</h5>
 
-        <div class="row">
-            @for (int i = 0; i < 3; i++)
-            {
-                <div class="col-md-4 mb-3">
-                    <div class="card p-3">
-                        <div class="fw-bold">Інший продавець @(i + 1)</div>
-                        <div class="text-danger fw-bold mt-2">
-                            @finalPrice.ToString("N2", culture) грн
-                        </div>
-                        <button class="btn btn-sm btn-outline-dark mt-2">
-                            Перейти
-                        </button>
-                    </div>
-                </div>
-            }
+            <div class="products-grid">
+                @foreach (var item in (List<CloneProm.Models.Product>)ViewBag.OtherSellers)
+                {
+                    <partial name="_ProductCard" model="item" />
+                }
+            </div>
         </div>
-    </div>
+    }
 
     <!-- ================= SIMILAR PRODUCTS ================= -->
     @if (ViewBag.Similar != null && ((List<CloneProm.Models.Product>)ViewBag.Similar).Any())
@@ -253,15 +296,19 @@
     .spec-row {
         display: flex;
         justify-content: space-between;
-        padding: 6px 0;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
     }
 
     .spec-name {
         color: #6c757d;
+        width: 40%;
     }
 
     .spec-value {
         font-weight: 500;
+        width: 60%;
+        text-align: right;
     }
 
     .products-grid {

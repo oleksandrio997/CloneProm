@@ -8,115 +8,267 @@
     var products = ViewBag.Products as List<CloneProm.Models.Product>;
 }
 
-<div class="account-wrapper">
+<div class="account-layout">
 
-    <div class="account-sidebar">
-        <div class="account-user">
-            <div class="account-avatar"><i class="bi bi-person"></i></div>
+    <!-- Sidebar -->
+    <aside class="account-sidebar">
+        <div class="sidebar-user">
+            <div class="avatar">
+                <i class="bi bi-person"></i>
+            </div>
             <div>
-                <div class="fw-bold">@Model.UserName</div>
-                <div class="text-muted small">@Model.Email</div>
+                <div class="user-name">@Model.UserName</div>
+                <div class="user-email">@Model.Email</div>
             </div>
         </div>
 
-        <ul class="account-menu">
-            <li>
-                <a asp-action="Index" asp-route-tab="dashboard"
-                   class="@(activeTab == "dashboard" ? "active" : "")">Мій кабінет</a>
-            </li>
-            <li>
-                <a asp-action="Index" asp-route-tab="orders"
-                   class="@(activeTab == "orders" ? "active" : "")">Мої замовлення</a>
-            </li>
-            <li>
-                <a asp-action="Index" asp-route-tab="favorites"
-                   class="@(activeTab == "favorites" ? "active" : "")">Бажане</a>
-            </li>
+        <nav class="sidebar-menu">
+            <a asp-action="Index" asp-route-tab="dashboard"
+               class="@(activeTab == "dashboard" ? "active" : "")">
+                Мій кабінет
+            </a>
+
+            <a asp-action="Index" asp-route-tab="orders"
+               class="@(activeTab == "orders" ? "active" : "")">
+                Мої замовлення
+            </a>
+
+            <a asp-action="Index" asp-route-tab="favorites"
+               class="@(activeTab == "favorites" ? "active" : "")">
+                Бажане
+            </a>
 
             @if (isSeller || isAdmin)
             {
-                <li><a asp-controller="Product" asp-action="Index">Мої товари</a></li>
-                <li><a asp-controller="Product" asp-action="Create">Додати товар</a></li>
+                <a asp-controller="Product" asp-action="Index">Мої товари</a>
+                <a asp-controller="Product" asp-action="Create">Додати товар</a>
             }
             else
             {
-                <li><a asp-controller="Account" asp-action="BecomeSeller">Стати продавцем</a></li>
+                <a asp-controller="Account" asp-action="BecomeSeller">
+                    Стати продавцем
+                </a>
             }
-        </ul>
+        </nav>
 
         <form asp-controller="Account" asp-action="Logout" method="post">
             <button class="logout-btn">Вийти</button>
         </form>
-    </div>
+    </aside>
 
-    <div class="account-content">
+    <!-- Content -->
+    <main class="account-content">
+
         @if (activeTab == "dashboard")
         {
-            <h4>Мій кабінет</h4>
-            <p>Вітаємо 👋</p>
-
-            @if (products != null && products.Any())
-            {
-                <h5>Ваші товари:</h5>
-                <div class="row">
-                    @foreach (var p in products)
-                    {
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <img src="@p.ImagePath" class="card-img-top" style="height:200px; object-fit:cover;" />
-                                <div class="card-body d-flex flex-column">
-                                    <h5>@p.Name</h5>
-                                    <p class="text-danger fw-bold">@p.Price.ToString("C")</p>
-                                    <a class="btn btn-primary mt-auto"
-                                       asp-controller="Product"
-                                       asp-action="Details"
-                                       asp-route-id="@p.Id">Переглянути</a>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <p>У вас ще немає товарів</p>
-            }
+            <h2 class="page-title">Мій кабінет</h2>
+            <div class="dashboard-box">
+                Вітаємо 👋
+            </div>
         }
 
         @if (activeTab == "orders")
         {
-            <h4>Мої замовлення</h4>
-            <p>Тут будуть замовлення</p>
+            <h2 class="page-title">Мої замовлення</h2>
+            <div class="dashboard-box">
+                Тут будуть замовлення
+            </div>
         }
 
         @if (activeTab == "favorites")
         {
-            <h4>Бажане</h4>
+            <h2 class="page-title">Список бажань</h2>
+
             @if (favorites == null || !favorites.Any())
             {
-                <p>У вас ще немає улюблених товарів</p>
+                <div class="empty-box">
+                    У вас ще немає улюблених товарів
+                </div>
             }
             else
             {
-                <div class="row">
+                <div class="wishlist-list">
                     @foreach (var p in favorites)
                     {
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <img src="@p.ImagePath" class="card-img-top" style="height:200px; object-fit:cover;" />
-                                <div class="card-body d-flex flex-column">
-                                    <h5>@p.Name</h5>
-                                    <p class="text-danger fw-bold">@p.Price.ToString("C")</p>
-                                    <a class="btn btn-primary mt-auto"
-                                       asp-controller="Product"
-                                       asp-action="Details"
-                                       asp-route-id="@p.Id">Переглянути</a>
-                                </div>
+                        <div class="wishlist-item">
+                            <div class="wishlist-image">
+                                <img src="@p.ImagePath" />
+                            </div>
+
+                            <div class="wishlist-info">
+                                <div class="wishlist-title">@p.Name</div>
+                                <div class="wishlist-price">@p.Price.ToString("C")</div>
+                            </div>
+
+                            <div class="wishlist-actions">
+                                <a asp-controller="Product"
+                                   asp-action="Details"
+                                   asp-route-id="@p.Id"
+                                   class="btn-view">
+                                    Переглянути
+                                </a>
                             </div>
                         </div>
                     }
                 </div>
             }
         }
-    </div>
+    </main>
 </div>
+
+<style>
+    .account-layout {
+        display: flex;
+        background: #f5f6f7;
+        min-height: 80vh;
+        padding: 30px;
+        gap: 30px;
+    }
+
+    /* SIDEBAR */
+
+    .account-sidebar {
+        width: 260px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-user {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+        background: #eee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-name {
+        font-weight: 600;
+    }
+
+    .user-email {
+        font-size: 13px;
+        color: #888;
+    }
+
+    .sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: auto;
+    }
+
+        .sidebar-menu a {
+            padding: 10px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+            .sidebar-menu a:hover {
+                background: #f0f2f5;
+            }
+
+            .sidebar-menu a.active {
+                background: #e9ecef;
+                font-weight: 600;
+            }
+
+    .logout-btn {
+        border: none;
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+        .logout-btn:hover {
+            background: #e2e2e2;
+        }
+
+    /* CONTENT */
+
+    .account-content {
+        flex: 1;
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .page-title {
+        margin-bottom: 25px;
+    }
+
+    .dashboard-box,
+    .empty-box {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    /* WISHLIST */
+
+    .wishlist-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .wishlist-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+    }
+
+    .wishlist-image img {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .wishlist-info {
+        flex: 1;
+    }
+
+    .wishlist-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .wishlist-price {
+        color: #e53935;
+        font-weight: 600;
+    }
+
+    .btn-view {
+        background: #111;
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        .btn-view:hover {
+            background: #333;
+        }
+</style>

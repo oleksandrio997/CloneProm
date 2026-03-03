@@ -447,3 +447,87 @@ body {
 
 
 
+
+.product-form-wrapper {
+    background: #f5f6f7;
+    min-height: 80vh;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.form-card {
+    background: #fff;
+    width: 100%;
+    max-width: 700px;
+    padding: 35px;
+    border-radius: 14px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+}
+
+.form-title {
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+.form-input {
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+    .form-input:focus {
+        border-color: #111;
+        outline: none;
+    }
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.current-image {
+    margin-top: 15px;
+}
+
+    .current-image img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #eee;
+    }
+
+.btn-main {
+    margin-top: 10px;
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-main:hover {
+        background: #333;
+    }
