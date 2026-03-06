@@ -59,8 +59,8 @@
                             </li>
                         }
 
-                        <li><a class="icon-link"asp-controller="Profile"asp-action="Index"asp-route-tab="favorites">Бажане</a></li>
-                        <li><a class="icon-link" asp-controller="Cart" asp-action="Index">Кошик</a></li>
+                        <li><a class="icon-link" asp-controller="Profile" asp-action="Index" asp-route-tab="favorites"><i class="bi bi-heart"></i> Бажане</a></li>
+                        <li><a class="icon-link" href="#" onclick="openCart()"><i class="bi bi-cart"></i> Кошик</a></li>
                     </ul>
                 </div>
             </div>
@@ -82,7 +82,7 @@
     <script>
         $(function(){
             // Ajax submit for cart / favorites forms
-            $(document).on('submit', '.ajax-cart-form', function(e){
+            $(document).on('submit', '.cart-form', function(e){
                 e.preventDefault();
                 var $form = $(this);
                 var token = $form.find('input[name="__RequestVerificationToken"]').val();
@@ -91,10 +91,6 @@
                     method: 'POST',
                     data: $form.serialize(),
                     headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .done(function(){
-                    $form.find('button').text('Додано').prop('disabled', true);
-                    setTimeout(function(){ $form.find('button').text('Купити').prop('disabled', false); }, 1500);
                 })
                 .fail(function(xhr, status, err){
                     alert('Помилка при додаванні до кошика: ' + (xhr.responseText || status));
@@ -151,6 +147,45 @@
             document.getElementById("loginForm").classList.remove("d-none");
             document.getElementById("authTitle").innerText = "Login";
         }
+
+
+        function openCart() {
+            document.getElementById("cartSidebar").classList.add("active");
+            document.getElementById("cartOverlay").classList.remove("d-none");
+            loadCart(); // підвантажуємо кошик
+        }
+
+        function closeCart() {
+            document.getElementById("cartSidebar").classList.remove("active");
+            document.getElementById("cartOverlay").classList.add("d-none");
+        }
+        function loadCart(){
+            $("#cartContent").load("/Cart/GetCart");
+        }
+
+        function increaseCart(id) {
+
+            $.post("/Cart/Increase", { productId: id }, function () {
+                loadCart();
+            });
+
+        }
+
+        function decreaseCart(id) {
+
+            $.post("/Cart/Decrease", { productId: id }, function () {
+                loadCart();
+            });
+
+        }
+
+        function removeCart(id) {
+
+            $.post("/Cart/RemoveFromCart", { productId: id }, function () {
+                loadCart();
+            });
+
+        }
     </script>
 
     <!-- ================= AUTH SIDEBAR ================= -->
@@ -194,6 +229,21 @@
             </div>
         </div>
     </div>
+    <!-- CART SIDEBAR -->
+    <div id="cartOverlay" class="cart-overlay d-none"></div>
+
+    <div id="cartSidebar" class="cart-sidebar">
+
+        <div class="cart-header">
+            <h5>Кошик</h5>
+            <button onclick="closeCart()" class="cart-close">×</button>
+        </div>
+
+        <div class="cart-body" id="cartContent">
+            <!-- тут буде список товарів -->
+        </div>
+    </div>
+
     <footer class="kram-footer mt-5 pt-5 pb-4">
         <div class="container">
             <div class="row">

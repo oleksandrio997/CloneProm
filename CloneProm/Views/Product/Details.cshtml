@@ -89,7 +89,14 @@
 
                 @if (Model.Quantity > 0)
                 {
-                    <!-- КУПИТИ ЗАРАЗ -->
+                    <!-- Кнопка AJAX "Купити" -->
+                    <button type="button"
+                            class="btn btn-outline-dark btn-lg"
+                            onclick="addToCart(@Model.Id)">
+                        Купити
+                    </button>
+
+                    <!-- Кнопка "Купити зараз" через POST форму -->
                     <form asp-controller="Cart"
                           asp-action="AddToCart"
                           asp-route-returnUrl="/Home/Order"
@@ -97,25 +104,8 @@
 
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="productId" value="@Model.Id" />
-                        <input type="hidden" name="quantity" value="1" />
-
-                        <button class="btn btn-dark btn-lg px-4">
+                        <button type="submit" class="btn btn-dark btn-lg px-4">
                             Купити зараз
-                        </button>
-
-                    </form>
-
-                    <!-- КУПИТИ -->
-                    <form asp-controller="Cart"
-                          asp-action="AddToCart"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="productId" value="@Model.Id" />
-                        <input type="hidden" name="quantity" value="1" />
-
-                        <button class="btn btn-outline-dark btn-lg">
-                            Купити
                         </button>
 
                     </form>
@@ -352,5 +342,27 @@
 
         document.querySelectorAll(".thumb").forEach(t => t.classList.remove("active"));
         el.classList.add("active");
+    }
+
+           function addToCart(productId) {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        fetch("/Cart/AddToCart", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "RequestVerificationToken": token,
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: `productId=${productId}&quantity=1`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Товар додано у кошик", data.count);
+                // Можна додати візуальний індикатор або оновити лічильник кошика
+            }
+        })
+        .catch(err => console.error(err));
     }
 </script>
