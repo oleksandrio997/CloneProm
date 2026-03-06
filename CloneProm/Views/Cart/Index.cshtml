@@ -1,41 +1,44 @@
 @model List<CloneProm.Models.ViewModels.CartItemViewModel>
 
-@{
-    ViewData["Title"] = "Cart";
-}
-
-<h2>Your Cart</h2>
+<h2>Кошик</h2>
 
 @if (!Model.Any())
 {
-    <p>Your cart is empty.</p>
+    <p>Ваш кошик порожній</p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Product.Name</td>
-                    <td>@item.Product.Price.ToString("C")</td>
-                    <td>@item.Quantity</td>
-                    <td>
-                        <form asp-controller="Cart" asp-action="RemoveFromCart" method="post">
-                            <input type="hidden" name="productId" value="@item.Product.Id" />
-                            <button class="btn btn-sm btn-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="cart-body">
+
+        @foreach (var item in Model)
+        {
+            <div class="cart-item">
+
+                <img src="@item.Product.ImagePath" width="70" />
+
+                <div class="flex-grow-1">
+
+                    <div class="cart-item-title">
+                        @item.Product.Name
+                    </div>
+
+                    <div class="cart-item-price">
+                        @item.Product.Price грн
+                    </div>
+
+                    <div>
+                        Кількість: @item.Quantity
+                    </div>
+
+                </div>
+
+                <form asp-controller="Cart" asp-action="RemoveFromCart" method="post">
+                    <input type="hidden" name="productId" value="@item.Product.Id" />
+                    <button class="btn btn-sm btn-danger">?</button>
+                </form>
+
+            </div>
+        }
+
+    </div>
 }
