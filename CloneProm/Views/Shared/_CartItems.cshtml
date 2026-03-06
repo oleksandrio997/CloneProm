@@ -1,0 +1,73 @@
+﻿@model List<CloneProm.Models.ViewModels.CartItemViewModel>
+
+@if (!Model.Any())
+{
+    <div class="text-center mt-4">
+        <p>Ваш кошик порожній</p>
+    </div>
+}
+else
+{
+    <div class="cart-items">
+
+        @foreach (var item in Model)
+        {
+            <div class="cart-product">
+
+                <img src="@item.Product.ImagePath" class="cart-product-img" />
+
+                <div class="cart-product-info">
+
+                    <div class="cart-product-title">
+                        @item.Product.Name
+                    </div>
+
+                    <div class="cart-product-price">
+                        @item.Product.Price.ToString("0.##") грн
+                    </div>
+
+                    <div class="cart-qty">
+
+                        <button class="qty-btn"
+                                onclick="decreaseCart(@item.Product.Id)">
+                            −
+                        </button>
+
+                        <span class="qty-number">
+                            @item.Quantity
+                        </span>
+
+                        <button class="qty-btn"
+                                onclick="increaseCart(@item.Product.Id)">
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button class="cart-remove"
+                        onclick="removeCart(@item.Product.Id)">
+                    Видалити
+                </button>
+
+            </div>
+        }
+
+        <div class="cart-summary">
+
+            <div class="cart-total">
+                <span>Загальна сума до оплати</span>
+                <strong>
+                    @Model.Sum(i => i.Product.Price * i.Quantity).ToString("0.##") грн
+                </strong>
+            </div>
+
+            <button class="cart-checkout">
+                Оформити замовлення
+            </button>
+
+        </div>
+
+    </div>
+}

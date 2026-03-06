@@ -69,5 +69,58 @@ namespace CloneProm.Controllers
 
             return RedirectToAction("Index");
         }
+        public async Task<IActionResult> GetCart()
+        {
+            var sessionItems = HttpContext.Session.GetObject<List<SessionCartItem>>(SessionCartKey) ?? new();
+
+            var productIds = sessionItems.Select(i => i.ProductId).ToList();
+
+            var products = await _context.Products
+                .Where(p => productIds.Contains(p.Id))
+                .ToListAsync();
+
+            var items = sessionItems.Select(si => new CartItemViewModel
+            {
+                Product = products.First(p => p.Id == si.ProductId),
+                Quantity = si.Quantity
+            }).ToList();
+
+            return PartialView("_CartItems", items);
+        }
+
+        [HttpPost]
+        public IActionResult Increase(int productId)
+        {
+            var cart = HttpContext.Session.GetObject<List<SessionCartItem>>(SessionCartKey) ?? new();
+
+            var item = cart.FirstOrDefault(x => x.ProductId == productId);
+
+            if (item != null)
+                item.Quantity++;
+
+            HttpContext.Session.SetObject(SessionCartKey, cart);
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult Decrease(int productId)
+        {
+            var cart = HttpContext.Session.GetObject<List<SessionCartItem>>(SessionCartKey) ?? new();
+
+            var item = cart.FirstOrDefault(x => x.ProductId == productId);
+
+            if (item != null)
+            {
+                item.Quantity--;
+
+                if (item.Quantity <= 0)
+                    cart.Remove(item);
+            }
+
+            HttpContext.Session.SetObject(SessionCartKey, cart);
+
+            return Ok();
+        }
     }
 }
