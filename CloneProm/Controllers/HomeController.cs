@@ -137,5 +137,25 @@ namespace CloneProm.Controllers
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
         }
+
+        public async Task<IActionResult> Order()
+        {
+            var sessionItems = HttpContext.Session.GetObject<List<SessionCartItem>>("CartItems")
+                              ?? new List<SessionCartItem>();
+
+            var productIds = sessionItems.Select(i => i.ProductId).ToList();
+
+            var products = await _context.Products
+                .Where(p => productIds.Contains(p.Id))
+                .ToListAsync();
+
+            var cart = sessionItems.Select(si => new CartItemViewModel
+            {
+                Product = products.First(p => p.Id == si.ProductId),
+                Quantity = si.Quantity
+            }).ToList();
+
+            return View("~/Views/Order/Index.cshtml", cart);
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace CloneProm.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddToCart(int productId, int quantity = 1)
+        public IActionResult AddToCart(int productId, int quantity = 1, string? returnUrl = null)
         {
             var sessionItems = HttpContext.Session.GetObject<List<SessionCartItem>>(SessionCartKey) ?? new List<SessionCartItem>();
             var item = sessionItems.FirstOrDefault(i => i.ProductId == productId);
@@ -52,6 +52,8 @@ namespace CloneProm.Controllers
             // respond JSON for AJAX, otherwise redirect to cart page
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 return Json(result);
+            if (!string.IsNullOrEmpty(returnUrl))
+                return Redirect(returnUrl);
 
             return RedirectToAction("Index");
         }
@@ -68,6 +70,12 @@ namespace CloneProm.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public IActionResult ClearCart()
+        {
+            HttpContext.Session.Remove("CartItems");
+            return Ok();
         }
     }
 }
