@@ -86,6 +86,7 @@
 
             <!-- Buttons -->
             <div class="mt-3 d-flex gap-2">
+
                 @if (Model.Quantity > 0)
                 {
                     <!-- Кнопка AJAX "Купити" -->
@@ -98,12 +99,15 @@
                     <!-- Кнопка "Купити зараз" через POST форму -->
                     <form asp-controller="Cart"
                           asp-action="AddToCart"
+                          asp-route-returnUrl="/Home/Order"
                           method="post">
+
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="productId" value="@Model.Id" />
                         <button type="submit" class="btn btn-dark btn-lg px-4">
                             Купити зараз
                         </button>
+
                     </form>
                 }
                 else
@@ -112,6 +116,7 @@
                         Немає в наявності
                     </button>
                 }
+
             </div>
 
             <div class="delivery-block mt-4 small">

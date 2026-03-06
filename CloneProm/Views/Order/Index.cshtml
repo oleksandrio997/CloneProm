@@ -1,0 +1,202 @@
+﻿@model List<CloneProm.Models.ViewModels.CartItemViewModel>
+
+@{
+    ViewData["Title"] = "Оформлення замовлення";
+}
+
+<div class="container mt-4 order-page">
+
+    <h4 class="text-center mb-4">Оформлення замовлення</h4>
+
+    <div class="row">
+
+        <!-- LEFT SIDE -->
+
+        <div class="col-lg-7">
+
+            <form id="orderForm">
+
+                <h5 class="mb-3">Особисті дані</h5>
+
+                <div class="mb-3">
+                    <label class="form-label">Ім'я</label>
+                    <input class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Прізвище</label>
+                    <input class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Телефон</label>
+                    <input type="tel"
+                           name="Phone"
+                           class="form-control"
+                           placeholder="+380XXXXXXXXX"
+                           pattern="^\+380\d{9}$"
+                           required>
+                </div>
+
+                <h5 class="mb-3">Доставка</h5>
+
+                <div class="mb-3">
+                    <label class="form-label">Місто</label>
+                    <input class="form-control" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Відділення</label>
+                    <input class="form-control" required>
+                </div>
+
+                <h5 class="mb-3">Оплата</h5>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="pay" required checked>
+                    <label class="form-check-label">Visa/Mastercard</label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="pay">
+                    <label class="form-check-label">Google Pay</label>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="radio" name="pay">
+                    <label class="form-check-label">Оплата при отриманні</label>
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- RIGHT SIDE -->
+
+        <div class="col-lg-5">
+
+            <div id="orderCard">
+
+                <h5 class="mb-3">Ваше замовлення</h5>
+
+                @{
+                    decimal total = 0;
+                }
+
+                @foreach (var item in Model)
+                {
+
+                    var price = item.Product.Price * item.Quantity;
+                    total += price;
+
+                    <div class="order-product d-flex mb-3">
+
+                        <div class="order-img me-3">
+                            <img src="@item.Product.ImagePath" width="70">
+                        </div>
+
+                        <div class="order-info flex-grow-1">
+
+                            <p class="fw-semibold mb-1">
+                                @item.Product.Name
+                            </p>
+
+                            <p class="mb-1">
+                                @item.Product.Price грн × @item.Quantity
+                            </p>
+
+                            <p class="fw-bold">
+                                @price грн
+                            </p>
+
+                            <form asp-controller="Cart"
+                                  asp-action="RemoveFromCart"
+                                  method="post">
+
+                                <input type="hidden"
+                                       name="productId"
+                                       value="@item.Product.Id" />
+
+                                <button class="btn btn-sm btn-outline-danger">
+                                    Видалити
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                }
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span class="fw-semibold">
+                        До сплати:
+                    </span>
+
+                    <strong>
+                        @total грн
+                    </strong>
+
+                </div>
+
+                <button type="button"
+                        class="btn btn-dark w-100"
+                        onclick="completeOrder()">
+
+                    Оформити замовлення
+
+                </button>
+
+            </div>
+
+
+            <div id="successMessage"
+                 class="d-none text-center p-4 border rounded">
+
+                <h4>✅ Замовлення оформлено</h4>
+                <p>Дякуємо за покупку</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+       function completeOrder() {
+
+        const form = document.getElementById("orderForm");
+
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        fetch('/Cart/ClearCart', {
+            method: 'POST'
+        })
+        .then(response => {
+
+            if (response.ok) {
+
+                document.getElementById("orderCard").style.display = "none";
+                document.getElementById("successMessage").classList.remove("d-none");
+
+            }
+
+        });
+
+    }
+</script>
