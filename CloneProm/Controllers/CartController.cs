@@ -75,6 +75,8 @@ namespace CloneProm.Controllers
         public IActionResult ClearCart()
         {
             HttpContext.Session.Remove("CartItems");
+            return Ok();
+        }
         public async Task<IActionResult> GetCart()
         {
             var sessionItems = HttpContext.Session.GetObject<List<SessionCartItem>>(SessionCartKey) ?? new();
@@ -127,6 +129,12 @@ namespace CloneProm.Controllers
             HttpContext.Session.SetObject(SessionCartKey, cart);
 
             return Ok();
+        }
+
+        public IActionResult Checkout()
+        {
+            var cart = GetCart();
+            return View(cart);
         }
     }
 }

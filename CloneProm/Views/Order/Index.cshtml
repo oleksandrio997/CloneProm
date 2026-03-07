@@ -4,13 +4,13 @@
     ViewData["Title"] = "Оформлення замовлення";
 }
 
-<div class="container mt-4 order-page">
+<div class="container order-page mt-4">
 
     <h4 class="text-center mb-4">Оформлення замовлення</h4>
 
     <div class="row">
 
-        <!-- LEFT SIDE -->
+        <!-- LEFT -->
 
         <div class="col-lg-7">
 
@@ -20,70 +20,113 @@
 
                 <div class="mb-3">
                     <label class="form-label">Ім'я</label>
-                    <input class="form-control" required>
+                    <input class="form-control" placeholder="Ім'я" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Прізвище</label>
-                    <input class="form-control" required>
+                    <input class="form-control" placeholder="Прізвище" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" required>
+                    <input type="email" class="form-control" placeholder="Email" required>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label">Телефон</label>
-                    <input type="tel"
-                           name="Phone"
-                           class="form-control"
-                           placeholder="+380XXXXXXXXX"
-                           pattern="^\+380\d{9}$"
-                           required>
+                    <label class="form-label">Номер телефону</label>
+
+                    <div class="input-group phone-group">
+
+                        <span class="input-group-text">
+                            <img src="https://img.icons8.com/?size=100&id=2dThoYcv8J73&format=png&color=000000" alt="Alternate Text" class="flag"/> +380
+                        </span>
+
+                        <input type="tel"
+                               class="form-control"
+                               placeholder="XXXXXXXXX"
+                               pattern="[0-9]{9}"
+                               required>
+
+                    </div>
                 </div>
 
-                <h5 class="mb-3">Доставка</h5>
+                <h5 class="mb-4">Спосіб доставки</h5>
+
+                <div class="delivery-box">
+
+                    <div class="delivery-header">
+                        <img src="/images/logos/novaposhta-logo.jpg" alt="Нова пошта" class="nlogo"/>
+                        Нова пошта від 60грн
+                    </div>
+
+                    <div class="delivery-options">
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="delivery" checked>
+                            <label class="form-check-label">У відділення</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="delivery">
+                            <label class="form-check-label">Кур'єром</label>
+                        </div>
+
+                    </div>
+
+                </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Місто</label>
-                    <input class="form-control" required>
+                    <label class="form-label">Населений пункт</label>
+                    <input class="form-control" placeholder="Рівне" required>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label">Відділення</label>
-                    <input class="form-control" required>
+                    <label class="form-label">Відділення або поштомат</label>
+                    <input class="form-control" placeholder="Виберіть відділення або поштомат" required>
                 </div>
 
-                <h5 class="mb-3">Оплата</h5>
+                <h5 class="mb-3">Спосіб оплати</h5>
 
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="pay" required checked>
-                    <label class="form-check-label">Visa/Mastercard</label>
+                    <input class="form-check-input" type="radio" name="pay" checked>
+                    <label class="form-check-label">
+                        Оплата карткою Visa/Mastercard
+                    </label>
                 </div>
 
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="pay">
-                    <label class="form-check-label">Google Pay</label>
+                    <label class="form-check-label">
+                        Google Pay
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="pay">
+                    <label class="form-check-label">
+                        Apple Pay
+                    </label>
                 </div>
 
                 <div class="form-check mb-4">
                     <input class="form-check-input" type="radio" name="pay">
-                    <label class="form-check-label">Оплата при отриманні</label>
+                    <label class="form-check-label">
+                        Оплата при отриманні
+                    </label>
                 </div>
 
             </form>
 
         </div>
 
-
-        <!-- RIGHT SIDE -->
+        <!-- RIGHT -->
 
         <div class="col-lg-5">
 
             <div id="orderCard">
 
-                <h5 class="mb-3">Ваше замовлення</h5>
+                <h5 class="mb-3">Замовлення</h5>
 
                 @{
                     decimal total = 0;
@@ -91,48 +134,41 @@
 
                 @foreach (var item in Model)
                 {
-
                     var price = item.Product.Price * item.Quantity;
                     total += price;
 
                     <div class="order-product d-flex mb-3">
 
                         <div class="order-img me-3">
-                            <img src="@item.Product.ImagePath" width="70">
+                            <img src="@item.Product.ImagePath">
                         </div>
 
-                        <div class="order-info flex-grow-1">
+                        <div class="flex-grow-1">
 
-                            <p class="fw-semibold mb-1">
+                            <div class="fw-semibold">
                                 @item.Product.Name
-                            </p>
+                            </div>
 
-                            <p class="mb-1">
-                                @item.Product.Price грн × @item.Quantity
-                            </p>
+                            <div class="text-muted small">
+                                @item.Product.Price грн
+                            </div>
 
-                            <p class="fw-bold">
-                                @price грн
-                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
 
-                            <form asp-controller="Cart"
-                                  asp-action="RemoveFromCart"
-                                  method="post">
+                                <div class="fw-bold">
+                                    @price грн
+                                </div>
 
-                                <input type="hidden"
-                                       name="productId"
-                                       value="@item.Product.Id" />
-
-                                <button class="btn btn-sm btn-outline-danger">
+                                <button class="btn btn-sm btn-link text-danger p-0"
+                                        onclick="removeFromCart(@item.Product.Id)">
                                     Видалити
                                 </button>
 
-                            </form>
+                            </div>
 
                         </div>
 
                     </div>
-
                 }
 
                 <hr>
@@ -149,12 +185,9 @@
 
                 </div>
 
-                <button type="button"
-                        class="btn btn-dark w-100"
+                <button class="btn btn-dark w-100"
                         onclick="completeOrder()">
-
                     Оформити замовлення
-
                 </button>
 
             </div>
@@ -173,30 +206,194 @@
     </div>
 
 </div>
+
 <script>
 
-       function completeOrder() {
+    let cartItemsCount = @Model.Count;
 
-        const form = document.getElementById("orderForm");
+    function completeOrder(){
 
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
+    if(cartItemsCount === 0){
 
-        fetch('/Cart/ClearCart', {
-            method: 'POST'
-        })
-        .then(response => {
-
-            if (response.ok) {
-
-                document.getElementById("orderCard").style.display = "none";
-                document.getElementById("successMessage").classList.remove("d-none");
-
-            }
-
-        });
+    alert("Кошик пустий");
+    return;
 
     }
+
+    const form = document.getElementById("orderForm");
+
+    if(!form.checkValidity()){
+
+    form.reportValidity();
+    return;
+
+    }
+
+    fetch('/Cart/ClearCart',{
+    method:'POST'
+    })
+    .then(response=>{
+
+    if(response.ok){
+
+    document.getElementById("orderCard").style.display="none";
+    document.getElementById("successMessage").classList.remove("d-none");
+
+    }
+
+    });
+
+    }
+
+    function removeFromCart(productId){
+
+    fetch('/Cart/RemoveFromCart',{
+
+    method:'POST',
+    headers:{
+    'Content-Type':'application/x-www-form-urlencoded'
+    },
+    body:'productId='+productId
+
+    })
+    .then(response=>{
+
+    if(response.ok){
+
+    location.reload();
+
+    }
+
+    });
+
+    }
+
 </script>
+
+<style>
+
+    .order-page {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    /* inputs */
+
+    .form-control {
+        height: 48px;
+        border-radius: 6px;
+        border: 1px solid #dcdcdc;
+        background: #fafafa;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    /* phone */
+
+    .phone-group .input-group-text {
+        background: #f5f5f5;
+        border: 1px solid #dcdcdc;
+        font-size: 14px;
+        padding: 0 14px;
+    }
+
+    .phone-group input {
+        height: 48px;
+    }
+
+    .flag{
+        width: 16px;
+        height: 16px;
+    }
+
+    /* delivery */
+
+    .delivery-box {
+        padding: 0;
+        margin-bottom: 20px;
+        background: transparent;
+    }
+
+    .delivery-header {
+        font-size: 17px;
+        color: #555;
+        margin-bottom: 10px;
+    }
+
+    .delivery-options {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+    }
+
+    /* order card */
+
+    #orderCard {
+        border: none;
+        border-radius: 8px;
+        padding: 20px;
+        background: #fff;
+    }
+
+    .order-product {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+
+        .order-product:last-child {
+            border: none;
+        }
+
+    .order-img img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    /* total */
+
+    #orderCard strong {
+        font-size: 18px;
+    }
+
+    /* button */
+
+    #orderCard .btn-dark {
+        height: 48px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    /* success */
+
+    #successMessage {
+        background: #f8fff8;
+        border: 1px solid #d6f5d6;
+    }
+
+    /* mobile */
+    @@media (max-width: 992px) {
+        #orderCard {
+            margin-top: 30px;
+        }
+    }
+
+    .nlogo{
+        width: 20px;
+		height: 20px;
+    }
+
+    .form-check-input:checked {
+        background-color: #9e9e9e;
+        border-color: #9e9e9e;
+    }
+
+    .form-check-input:focus {
+        box-shadow: none;
+        border-color: #6c757d;
+    }
+</style>
