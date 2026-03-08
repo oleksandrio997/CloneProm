@@ -66,14 +66,20 @@
         </div>
     </div>
     <!-- CENTER BANNER -->
+    <!-- CENTER BANNER -->
     <div class="center-banner">
-        <!-- просто серая зона -->
+        <img src="/images/home/MegaBanner.jpg" alt="Banner">
     </div>
+
 
     <!-- RIGHT HARDCODE BLOCK -->
     <div class="right-business-block">
+
         <div class="business-box">
-            <div class="business-image"></div>
+
+            <div class="business-image">
+                <img src="/images/home/Busnes.jpg" alt="Business">
+            </div>
 
             <h6 class="mt-3 text-center">
                 Почніть свій бізнес на<br />
@@ -87,10 +93,13 @@
             <button class="btn btn-secondary w-100">
                 Почати бізнес
             </button>
+
         </div>
+
     </div>
 
 </div>
+
 <!-- POPULAR CATEGORIES (HARDCODE VISUAL BLOCK) -->
 <div class="popular-categories-section mt-5 mb-5">
 
@@ -193,3 +202,157 @@
         </div>
     </div>
 </div>
+
+<div class="custom-pagination">
+
+    <button class="page-btn prev disabled">
+        ‹ Назад
+    </button>
+
+    <button class="page-number active">1</button>
+    <button class="page-number">2</button>
+    <button class="page-number">3</button>
+
+    <span class="dots">...</span>
+
+    <button class="page-number">16</button>
+
+    <button class="page-btn next">
+        Вперед ›
+    </button>
+
+</div>
+
+<section class="benefits-section">
+
+    <div class="benefits-container">
+
+        <div class="benefit-item">
+            <img src="/images/home/payment.png" alt="Оплата">
+            <h6>100% безпечні платежі</h6>
+            <p>
+                Оплачуй карткою, Apple Pay або<br>
+                Google Pay без жодних ризиків.
+            </p>
+        </div>
+
+        <div class="benefit-item">
+            <img src="/images/home/delivery.png" alt="Доставка">
+            <h6>Швидка доставка</h6>
+            <p>
+                Обирайте зручний спосіб: у<br>
+                відділення, поштомат або кур'єром.
+            </p>
+        </div>
+
+        <div class="benefit-item">
+            <img src="/images/home/bonus.png" alt="Бонуси">
+            <h6>Бонуси за покупку</h6>
+            <p>
+                Кешбек, персональні пропозиції та<br>
+                ексклюзивні знижки вже чекають.
+            </p>
+        </div>
+
+        <div class="benefit-item">
+            <img src="/images/home/return.png" alt="Повернення">
+            <h6>Гарантія повернення</h6>
+            <p>
+                Ми дбаємо про те, щоб покупки<br>
+                приносили лише задоволення.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<style>
+    .custom-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+        margin-top: 40px;
+    }
+
+    .page-number {
+        width: 48px;
+        height: 48px;
+        border: 1px solid #d9d9d9;
+        background: white;
+        border-radius: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .page-number:hover {
+            border-color: #000;
+        }
+
+        .page-number.active {
+            border: 2px solid #000;
+            font-weight: 600;
+        }
+
+    .page-btn {
+        height: 48px;
+        padding: 0 20px;
+        border: 1px solid #d9d9d9;
+        background: white;
+        border-radius: 12px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .page-btn:hover {
+            border-color: #000;
+        }
+
+        .page-btn.disabled {
+            color: #bfbfbf;
+            border-color: #e5e5e5;
+            cursor: default;
+        }
+
+    .dots {
+        font-size: 18px;
+        color: #999;
+    }
+
+    .benefits-section {
+        padding: 50px 0;
+        margin-top: 60px;
+    }
+
+    .benefits-container {
+        max-width: 1200px;
+        margin: auto;
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+    }
+
+    .benefit-item {
+        width: 22%;
+    }
+
+        .benefit-item img {
+            width: 70px;
+            margin-bottom: 15px;
+        }
+
+        .benefit-item h6 {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .benefit-item p {
+            font-size: 14px;
+            color: #555;
+        }
+    body {
+        background: #f4f4f4;;
+	}
+</style>
