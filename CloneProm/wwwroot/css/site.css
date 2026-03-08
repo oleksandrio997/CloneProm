@@ -8,7 +8,7 @@ html {
 /* removed hero area styles (reverted) */
 
 /* header / site top bar styling to match grey design */
-.site-header { background:#eef0f1; border-bottom:1px solid #e0e0e0; padding:12px 0; }
+.site-header { background:#eaeaea; border-bottom:1px solid #e0e0e0; padding:12px 0; }
 .site-brand { font-size:28px; margin-right:20px; color:#111; text-transform:lowercase; }
 .search-form .input-group { display:flex; }
 .search-input { border-radius:6px 0 0 6px; border:1px solid #dcdcdc; padding:10px 12px; }
@@ -1036,3 +1036,30 @@ body {
     border-radius: 6px;
 }
 
+/*Banners*/
+.center-banner {
+    flex: 1;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.center-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.business-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+    .business-image img {
+        width: 100%;
+        height: 140%;
+        object-fit: cover;
+        display: block;
+    }
