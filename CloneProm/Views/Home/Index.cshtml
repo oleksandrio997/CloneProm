@@ -205,21 +205,36 @@
 
 <div class="custom-pagination">
 
-    <button class="page-btn prev disabled">
-        ‹ Назад
-    </button>
+    @if (Model.CurrentPage > 1)
+    {
+        <a class="page-btn prev"
+           href="@Url.Action("Index", new { page = Model.CurrentPage - 1, category = Model.SelectedCategoryId, q = Model.SearchQuery })">
+            ‹ Назад
+        </a>
+    }
 
-    <button class="page-number active">1</button>
-    <button class="page-number">2</button>
-    <button class="page-number">3</button>
+    @for (int i = 1; i <= Model.TotalPages; i++)
+    {
+        if (i == Model.CurrentPage)
+        {
+            <span class="page-number active">@i</span>
+        }
+        else
+        {
+            <a class="page-number"
+               href="@Url.Action("Index", new { page = i, category = Model.SelectedCategoryId, q = Model.SearchQuery })">
+                @i
+            </a>
+        }
+    }
 
-    <span class="dots">...</span>
-
-    <button class="page-number">16</button>
-
-    <button class="page-btn next">
-        Вперед ›
-    </button>
+    @if (Model.CurrentPage < Model.TotalPages)
+    {
+        <a class="page-btn next"
+           href="@Url.Action("Index", new { page = Model.CurrentPage + 1, category = Model.SelectedCategoryId, q = Model.SearchQuery })">
+            Вперед ›
+        </a>
+    }
 
 </div>
 
@@ -285,6 +300,11 @@
         font-size: 16px;
         cursor: pointer;
         transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: black;
     }
 
         .page-number:hover {
@@ -304,6 +324,11 @@
         border-radius: 12px;
         font-size: 16px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: black;
     }
 
         .page-btn:hover {
