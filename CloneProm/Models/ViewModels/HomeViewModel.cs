@@ -10,5 +10,7 @@ namespace CloneProm.Models.ViewModels
         public IEnumerable<Product> RecommendedProducts { get; set; } = new List<Product>();
         public int? SelectedCategoryId { get; set; }
         public string? SearchQuery { get; set; }
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
     }
 }

@@ -20,9 +20,11 @@ namespace CloneProm.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            // If DB has no products for any reason, ensure seed runs so UI can show seed data.
+            int pageSize = 12;
+
+            // Seed if database empty
             if (!await _context.Products.AnyAsync())
             {
                 try
@@ -34,48 +36,76 @@ namespace CloneProm.Controllers
                     _logger.LogError(ex, "Failed to run seed from Home.Index");
                 }
 
-                // reload context queryable after seeding
                 _context.ChangeTracker.Clear();
             }
-            // support optional search and category filter via query string
+
+            // Query parameters
             var search = HttpContext.Request.Query["q"].ToString();
             var catIdStr = HttpContext.Request.Query["category"].ToString();
+
             int? catId = null;
-            if (int.TryParse(catIdStr, out var parsed)) catId = parsed;
+            if (int.TryParse(catIdStr, out var parsed))
+                catId = parsed;
 
             var productsQuery = _context.Products.AsQueryable();
+
+            // Search
             if (!string.IsNullOrWhiteSpace(search))
             {
-                productsQuery = productsQuery.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+                productsQuery = productsQuery
+                    .Where(p => p.Name.Contains(search) || p.Description.Contains(search));
             }
+
+            // Category filter
             if (catId.HasValue)
             {
-                productsQuery = productsQuery.Where(p => p.CategoryId == catId.Value);
+                productsQuery = productsQuery
+                    .Where(p => p.CategoryId == catId.Value);
             }
+
+            // Pagination
+            var totalProducts = await productsQuery.CountAsync();
+
+            var products = await productsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var model = new HomeViewModel
             {
                 Categories = await _context.Categories.ToListAsync(),
-                Products = await productsQuery.ToListAsync(),
+                Products = products,
                 SelectedCategoryId = catId,
-                SearchQuery = string.IsNullOrWhiteSpace(search) ? null : search
+                SearchQuery = string.IsNullOrWhiteSpace(search) ? null : search,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalProducts / (double)pageSize)
             };
 
-            // compute recommended products based on session favorites
+            // Recommended products logic
             var favIds = HttpContext.Session.GetObject<List<int>>("Favorites") ?? new List<int>();
+
             if (favIds.Any())
             {
-                var favProds = await _context.Products.Where(p => favIds.Contains(p.Id)).ToListAsync();
-                // choose the most frequent category among favorites
-                var topCat = favProds.GroupBy(p => p.CategoryId).OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefault();
+                var favProds = await _context.Products
+                    .Where(p => favIds.Contains(p.Id))
+                    .ToListAsync();
+
+                var topCat = favProds
+                    .GroupBy(p => p.CategoryId)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .FirstOrDefault();
+
                 if (topCat != 0)
                 {
-                    model.RecommendedProducts = await _context.Products.Where(p => p.CategoryId == topCat && !favIds.Contains(p.Id)).Take(6).ToListAsync();
+                    model.RecommendedProducts = await _context.Products
+                        .Where(p => p.CategoryId == topCat && !favIds.Contains(p.Id))
+                        .Take(6)
+                        .ToListAsync();
                 }
             }
             else
             {
-                // initial recommendations: prefer products that were seeded (known seed names)
                 string[] seedNames = {
                     "Notebook Alpha",
                     "Wireless Mouse Mini",
@@ -90,23 +120,32 @@ namespace CloneProm.Controllers
                     "Remote Car Racer"
                 };
 
-                var seeded = await _context.Products.Where(p => seedNames.Contains(p.Name)).ToListAsync();
+                var seeded = await _context.Products
+                    .Where(p => seedNames.Contains(p.Name))
+                    .ToListAsync();
+
                 if (seeded.Any())
                 {
-                    model.RecommendedProducts = seeded.OrderBy(p => Guid.NewGuid()).Take(6).ToList();
+                    model.RecommendedProducts = seeded
+                        .OrderBy(p => Guid.NewGuid())
+                        .Take(6)
+                        .ToList();
                 }
                 else
                 {
-                    // fallback to random products
                     var all = await _context.Products.ToListAsync();
-                    model.RecommendedProducts = all.OrderBy(p => Guid.NewGuid()).Take(6).ToList();
+
+                    model.RecommendedProducts = all
+                        .OrderBy(p => Guid.NewGuid())
+                        .Take(6)
+                        .ToList();
                 }
             }
 
             return View(model);
         }
 
-        // Diagnostic endpoint to check DB contents when debugging
+        // Diagnostic endpoint
         [HttpGet]
         [Route("home/dbstatus")]
         public async Task<IActionResult> DbStatus()
