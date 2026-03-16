@@ -3,6 +3,7 @@ using CloneProm.Models;
 using CloneProm.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CloneProm.Controllers
 {
@@ -22,7 +23,10 @@ namespace CloneProm.Controllers
             _context = context;
         }
 
+        // =========================
         // REGISTER
+        // =========================
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -45,8 +49,11 @@ namespace CloneProm.Controllers
 
             if (result.Succeeded)
             {
+                // додаємо роль User
                 await _userManager.AddToRoleAsync(user, "User");
+
                 await _signInManager.SignInAsync(user, false);
+
                 return RedirectToAction("Index", "Home");
             }
 
@@ -56,7 +63,10 @@ namespace CloneProm.Controllers
             return View(model);
         }
 
+        // =========================
         // LOGIN
+        // =========================
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -79,18 +89,26 @@ namespace CloneProm.Controllers
                 return RedirectToAction("Index", "Home");
 
             ModelState.AddModelError("", "Invalid login or password");
+
             return View(model);
         }
 
+        // =========================
         // LOGOUT
+        // =========================
+
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+
             return RedirectToAction("Index", "Home");
         }
 
+        // =========================
         // BECOME SELLER
+        // =========================
+
         [HttpGet]
         public IActionResult BecomeSeller()
         {
@@ -101,23 +119,33 @@ namespace CloneProm.Controllers
         public async Task<IActionResult> BecomeSeller(string shopName, string description)
         {
             var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
                 return Unauthorized();
 
+            // перевіряємо чи вже seller
             if (await _userManager.IsInRoleAsync(user, "Seller"))
                 return RedirectToAction("Index", "Home");
 
+            // додаємо роль Seller
             await _userManager.AddToRoleAsync(user, "Seller");
 
-            var seller = new Seller
-            {
-                UserId = user.Id,
-                ShopName = shopName,
-                Description = description
-            };
+            // перевірка чи вже є Seller у БД
+            var existingSeller = await _context.Sellers
+                .FirstOrDefaultAsync(s => s.UserId == user.Id);
 
-            _context.Sellers.Add(seller);
-            await _context.SaveChangesAsync();
+            if (existingSeller == null)
+            {
+                var seller = new Seller
+                {
+                    UserId = user.Id,
+                    ShopName = shopName,
+                    Description = description
+                };
+
+                _context.Sellers.Add(seller);
+                await _context.SaveChangesAsync();
+            }
 
             return RedirectToAction("Index", "Home");
         }

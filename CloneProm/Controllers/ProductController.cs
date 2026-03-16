@@ -101,18 +101,21 @@ namespace CloneProm.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!User.IsInRole("Admin"))
+            // шукаємо Seller
+            var seller = await _context.Sellers
+                .FirstOrDefaultAsync(s => s.UserId == userId);
+
+            if (seller == null)
             {
-                var seller = await _context.Sellers.FirstOrDefaultAsync(s => s.UserId == userId);
-                if (seller == null)
-                {
-                    ModelState.AddModelError("", "You are not registered as a seller.");
-                    ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
-                    return View(product);
-                }
-                product.SellerId = seller.Id;
+                ModelState.AddModelError("", "You must become a seller before adding products.");
+                ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
+                return View(product);
             }
 
+            // встановлюємо SellerId
+            product.SellerId = seller.Id;
+
+            // upload image
             if (imageFile != null && imageFile.Length > 0)
             {
                 var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
@@ -122,7 +125,9 @@ namespace CloneProm.Controllers
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
+                {
                     await imageFile.CopyToAsync(stream);
+                }
 
                 product.ImagePath = "/uploads/" + fileName;
             }
